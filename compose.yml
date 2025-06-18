@@ -13,5 +13,27 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
+    networks:
+      - chatp2p-server-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: chat-p2p-pgadmin
+    env_file: .env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
+      PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
+    ports:
+      - "5050:80"
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    networks:
+      - chatp2p-server-network
+
+networks:
+  chatp2p-server-network:
+    driver: bridge
+
 volumes:
   postgres_data:
