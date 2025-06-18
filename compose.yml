@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:17
+    container_name: chat-p2p-postgres
+    env_file: .env
+    environment:
+      POSTGRES_USER: "${SERVER_POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${SERVER_POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${SERVER_POSTGRES_DATABASE}"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+volumes:
+  postgres_data:
