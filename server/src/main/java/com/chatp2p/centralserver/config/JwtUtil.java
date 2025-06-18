@@ -11,7 +11,7 @@ import java.util.Base64;
 @Component
 public class JwtUtil {
 
-    @Value("${JWT_SECRET}")
+    @Value("${SERVER_JWT_SECRET}")
     private String secret;
 
     private SecretKey getSigningKey() {
