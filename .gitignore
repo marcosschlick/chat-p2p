@@ -1,0 +1,16 @@
+# Ignore Maven build output
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Ignore help files
+HELP.md
+
+### IntelliJ IDEA ###
+**/.idea/
+*.iws
+*.iml
+*.ipr
+
+### Environment Variables ###
+.env
+*.env
