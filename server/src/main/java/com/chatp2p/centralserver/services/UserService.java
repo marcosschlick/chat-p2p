@@ -27,6 +27,7 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
     public LoginResponse loginUser(LoginRequest request) throws AuthException {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new AuthException("User not found"));
@@ -38,7 +39,6 @@ public class UserService {
         if (user.getOnline()) {
             throw new AuthException("User already online");
         }
-
         userRepository.updateOnlineStatus(user.getId(), true);
         String token = jwtUtil.generateToken(user.getId());
         return new LoginResponse(token, user.getUsername(), user.getProfileImageUrl());
