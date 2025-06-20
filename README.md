@@ -59,3 +59,22 @@ CREATE TABLE users (
     profile_image_url VARCHAR(255)
 );
 ```
+
+## Executando o Sistema
+
+Para iniciar tanto o servidor quanto o cliente desktop, você precisará de dois terminais:
+
+### Terminal 1 - Servidor Spring Boot:
+```bash
+cd server && mvn clean spring-boot:run && cd ..
+```
+
+### Terminal 2 - Cliente Desktop JavaFX:
+```bash
+cd desktop && mvn clean javafx:run && cd ..
+```
+
+Importante:
+1. Execute o servidor primeiro (Terminal 1)
+2. Aguarde o servidor inicializar completamente
+3. Só então execute o cliente desktop (Terminal 2)
