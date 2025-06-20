@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chatp2p.controllers.ChatController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="chat-header">
+            <children>
+                <Button mnemonicParsing="false" onAction="#handleBack" styleClass="back-button" text="←" />
+                <Label styleClass="user-icon-small" text="👤" />
+                <Label fx:id="userLabel" styleClass="user-name-label" text="User_1" />
+            </children>
+            <padding>
+                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+            </padding>
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fx:id="messagesScrollPane" fitToWidth="true" hbarPolicy="NEVER" styleClass="messages-scroll">
+            <content>
+                <VBox fx:id="messagesContainer" spacing="10.0" styleClass="messages-container">
+                    <padding>
+                        <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
+                    </padding>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+    <bottom>
+        <HBox alignment="CENTER" spacing="10.0" styleClass="message-input-container">
+            <children>
+                <Button mnemonicParsing="false" onAction="#handleAttachment" styleClass="attachment-button" text="📎" />
+                <TextField fx:id="messageField" promptText="Digite uma mensagem" styleClass="message-input" HBox.hgrow="ALWAYS" />
+                <Button mnemonicParsing="false" onAction="#handleSendMessage" styleClass="send-button" text="➤" />
+            </children>
+            <padding>
+                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+            </padding>
+        </HBox>
+    </bottom>
+</BorderPane>

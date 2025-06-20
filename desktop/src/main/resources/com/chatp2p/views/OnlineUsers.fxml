@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chatp2p.controllers.OnlineUsersController">
+    <center>
+        <VBox alignment="CENTER" spacing="30.0" styleClass="users-container">
+            <children>
+                <Label styleClass="title-label" text="USUÁRIOS ONLINE:" />
+                <VBox fx:id="usersContainer" alignment="CENTER" maxWidth="400.0" spacing="15.0" />
+                <HBox alignment="CENTER">
+                    <Button fx:id="connectButton" mnemonicParsing="false" onAction="#handleConnect" styleClass="primary-button" text="CONECTAR" />
+                </HBox>
+            </children>
+            <padding>
+                <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+            </padding>
+        </VBox>
+    </center>
+</BorderPane>
