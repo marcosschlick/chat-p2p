@@ -1,0 +1,215 @@
+/* Estilos Globais */
+.root {
+    -fx-background-color: #2d2d2d;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+
+/* Tela de Login */
+.login-container {
+    -fx-background-color: #2d2d2d;
+    -fx-background-radius: 10;
+}
+
+.user-button {
+    -fx-background-color: #444444;
+    -fx-background-radius: 50%;
+    -fx-min-width: 100;
+    -fx-min-height: 100;
+    -fx-max-width: 100;
+    -fx-max-height: 100;
+    -fx-padding: 10;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-alignment: center;
+}
+
+.user-button:hover {
+    -fx-background-color: #555555;
+}
+
+.user-button.selected {
+    -fx-background-color: #7c4dff;
+    -fx-border-color: #6a3de8;
+    -fx-border-width: 2;
+}
+
+.login-field {
+    -fx-background-color: #f0f0f0;
+    -fx-background-radius: 5;
+    -fx-padding: 12;
+    -fx-font-size: 14px;
+    -fx-min-width: 300;
+    -fx-border-color: transparent;
+}
+
+.login-field:focused {
+    -fx-background-color: white;
+    -fx-border-color: #7c4dff;
+    -fx-border-width: 2;
+}
+
+.primary-button {
+    -fx-background-color: #7c4dff;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 24 12 24;
+    -fx-background-radius: 5;
+    -fx-min-width: 120;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-background-color: #6a3de8;
+}
+
+.primary-button:pressed {
+    -fx-background-color: #5e35d1;
+}
+
+.primary-button:disabled {
+    -fx-background-color: #666666;
+    -fx-cursor: default;
+}
+
+.secondary-button {
+    -fx-background-color: #9575cd;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 24 12 24;
+    -fx-background-radius: 5;
+    -fx-min-width: 120;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+}
+
+.secondary-button:hover {
+    -fx-background-color: #8561c5;
+}
+
+.secondary-button:pressed {
+    -fx-background-color: #7e57c2;
+}
+
+/* Tela de Usuários Online */
+.users-container {
+    -fx-background-color: #2d2d2d;
+    -fx-alignment: center;
+}
+
+.title-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-padding: 0 0 20 0;
+}
+
+/* ... (mantenha os estilos globais e de outras telas) ... */
+
+/* Tela de Chat */
+.chat-header {
+    -fx-background-color: #b19cd9;
+    -fx-padding: 15;
+}
+
+.user-icon-small {
+    -fx-font-size: 24px;
+    -fx-text-fill: #333333;
+    -fx-background-color: #888888;
+    -fx-background-radius: 50;
+    -fx-padding: 8;
+    -fx-min-width: 40;
+    -fx-min-height: 40;
+    -fx-alignment: center;
+}
+
+.user-name-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.messages-scroll {
+    -fx-background-color: #2d2d2d;
+    -fx-border-color: transparent;
+}
+
+.messages-scroll .viewport {
+    -fx-background-color: #2d2d2d;
+}
+
+.messages-container {
+    -fx-background-color: #2d2d2d;
+    -fx-padding: 10;
+}
+
+.message-input-container {
+    -fx-background-color: #2d2d2d;
+    -fx-padding: 15;
+}
+
+.message-input {
+    -fx-background-color: #f0f0f0;
+    -fx-background-radius: 25;
+    -fx-padding: 12 20 12 20;
+    -fx-font-size: 14px;
+    -fx-border-color: transparent;
+}
+
+.message-input:focused {
+    -fx-background-color: white;
+    -fx-border-color: #7c4dff;
+    -fx-border-width: 2;
+}
+
+.send-button {
+    -fx-background-color: #7c4dff;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-padding: 12;
+    -fx-background-radius: 50;
+    -fx-min-width: 45;
+    -fx-min-height: 45;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+}
+
+.send-button:hover {
+    -fx-background-color: #6a3de8;
+}
+
+.attachment-button {
+    -fx-background-color: #7c4dff;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-padding: 12;
+    -fx-background-radius: 50;
+    -fx-min-width: 45;
+    -fx-min-height: 45;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+}
+
+.attachment-button:hover {
+    -fx-background-color: #6a3de8;
+}
+
+/* Responsividade */
+@media screen and (max-width: 600px) {
+}
+
+/* Estilos para mensagens */
+.error-message {
+    -fx-text-fill: #d32f2f; /* Vermelho */
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+}
+
+.success-message {
+    -fx-text-fill: #388e3c; /* Verde */
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+}
