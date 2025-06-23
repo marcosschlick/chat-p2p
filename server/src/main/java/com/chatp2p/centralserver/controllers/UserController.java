@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,14 +21,13 @@ public class UserController {
 
     @GetMapping("/online")
     public ResponseEntity<List<Map<String, String>>> getOnlineUsers() {
-        List<Map<String, String>> users = userRepository.findOnlineUsers().stream()
-                .map(user -> {
-                    Map<String, String> userData = new HashMap<>();
-                    userData.put("username", user.getUsername());
-                    userData.put("profileImageUrl", user.getProfileImageUrl());
-                    return userData;
-                })
-                .collect(Collectors.toList());
+        List<Map<String, String>> users = userRepository.findOnlineUsers().stream().map(user -> {
+            Map<String, String> userData = new HashMap<>();
+            userData.put("username", user.getUsername());
+            userData.put("profileImageUrl", user.getProfileImageUrl());
+            userData.put("ip", user.getLastKnownIp()); // Novo campo
+            return userData;
+        }).collect(Collectors.toList());
 
         return ResponseEntity.ok(users);
     }
