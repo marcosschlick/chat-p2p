@@ -21,4 +21,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("UPDATE User u SET u.online = :online WHERE u.id = :id")
     void updateOnlineStatus(@Param("id") Long id, @Param("online") Boolean online);
+
+    @Modifying
+    @Query("UPDATE User u SET u.online = :online, u.lastKnownIp = :ip WHERE u.id = :id")
+    void updateOnlineStatusAndIp(
+            @Param("id") Long id,
+            @Param("online") Boolean online,
+            @Param("ip") String ip
+    );
 }
