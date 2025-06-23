@@ -39,7 +39,11 @@ public class UserService {
         if (user.getOnline()) {
             throw new AuthException("User already online");
         }
-        userRepository.updateOnlineStatus(user.getId(), true);
+        userRepository.updateOnlineStatusAndIp(
+                user.getId(),
+                true,
+                request.getIp()
+        );
         String token = jwtUtil.generateToken(user.getId());
         return new LoginResponse(token, user.getUsername(), user.getProfileImageUrl());
     }
