@@ -21,6 +21,9 @@ public class User {
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
+    @Column(name = "last_known_ip")
+    private String lastKnownIp;
+
     public User() {
     }
 
@@ -69,4 +72,8 @@ public class User {
     public void setProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
     }
+
+    public String getLastKnownIp() { return lastKnownIp; }
+
+    public void setLastKnownIp(String lastKnownIp) { this.lastKnownIp = lastKnownIp; }
 }
