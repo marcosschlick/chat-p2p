@@ -1,6 +1,6 @@
 package com.chatp2p.controllers;
 
-import com.chatp2p.App;
+import com.chatp2p.core.App;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
