@@ -10,6 +10,7 @@
             <children>
                 <Label styleClass="title-label" text="USUÁRIOS ONLINE:" />
                 <VBox fx:id="usersContainer" alignment="CENTER" maxWidth="400.0" spacing="15.0" />
+                <Label fx:id="messageLabel" styleClass="error-message" />
                 <HBox alignment="CENTER">
                     <Button fx:id="connectButton" mnemonicParsing="false" onAction="#handleConnect" styleClass="primary-button" text="CONECTAR" />
                 </HBox>

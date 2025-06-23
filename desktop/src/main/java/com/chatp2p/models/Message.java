@@ -1,4 +1,4 @@
-package com.chatp2p;
+package com.chatp2p.models;
 
 import java.io.Serializable;
 

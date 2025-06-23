@@ -1,6 +1,6 @@
 package com.chatp2p.controllers;
 
-import com.chatp2p.App;
+import com.chatp2p.core.App;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
@@ -8,6 +8,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -17,9 +20,21 @@ public class LoginController {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @FXML private TextField usernameField;
-    @FXML private PasswordField passwordField;
-    @FXML private Label messageLabel;
+    @FXML
+    private TextField usernameField;
+    @FXML
+    private PasswordField passwordField;
+    @FXML
+    private Label messageLabel;
+
+    private String getLocalIP() {
+        try (DatagramSocket socket = new DatagramSocket()) {
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            return socket.getLocalAddress().getHostAddress();
+        } catch (Exception e) {
+            return "127.0.0.1";
+        }
+    }
 
     @FXML
     private void handleLogin() {
@@ -32,14 +47,20 @@ public class LoginController {
             return;
         }
 
+        String ip = getLocalIP();
+
         new Thread(() -> {
             try {
+                String jsonBody = String.format(
+                        "{\"username\":\"%s\",\"password\":\"%s\",\"ip\":\"%s\"}",
+                        username, password, ip
+                );
+
                 HttpResponse<String> response = HttpClient.newHttpClient().send(
                         HttpRequest.newBuilder()
                                 .uri(URI.create("http://localhost:8080/api/auth/login"))
                                 .header("Content-Type", "application/json")
-                                .POST(HttpRequest.BodyPublishers.ofString(
-                                        "{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}"))
+                                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                                 .build(),
                         HttpResponse.BodyHandlers.ofString()
                 );

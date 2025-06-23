@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Map;
 
 @RestController
@@ -27,6 +28,7 @@ public class AuthController {
         }
     }
 
+
     @PostMapping("/login")
     public ResponseEntity<Object> login(@Valid @RequestBody LoginRequest request) {
         try {
@@ -34,6 +36,8 @@ public class AuthController {
         } catch (AuthException e) {
             return ResponseEntity.status(401).body(Map.of("error", e.getMessage()));
         }
+
+
     }
 
     @PostMapping("/logout")

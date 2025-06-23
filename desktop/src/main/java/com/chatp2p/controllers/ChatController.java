@@ -1,6 +1,6 @@
 package com.chatp2p.controllers;
 
-import com.chatp2p.App;
+import com.chatp2p.core.App;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;

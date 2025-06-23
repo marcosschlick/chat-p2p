@@ -1,11 +1,11 @@
 package com.chatp2p.controllers;
 
-import com.chatp2p.App;
+import com.chatp2p.core.App;
+import com.chatp2p.managers.HttpManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -14,11 +14,8 @@ import javafx.scene.layout.VBox;
 import javafx.geometry.Pos;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.net.URL;
+import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.Timer;
 
@@ -26,9 +23,17 @@ public class OnlineUsersController implements Initializable {
 
     @FXML private VBox usersContainer;
     @FXML private Button connectButton;
+    @FXML private Label messageLabel;
+
     private String selectedUser;
     private Timer refreshTimer;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    // Mock user para testes
+    private static final Map<String, String> MOCK_USER = Map.of(
+            "username", "mock_user",
+            "profileImageUrl", ""
+    );
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -49,34 +54,43 @@ public class OnlineUsersController implements Initializable {
 
     private void refreshOnlineUsers() {
         String token = App.getAuthToken();
+        List<Map<String, String>> users = new ArrayList<>();
+
+        // Sempre adiciona o usuário mockado
+        users.add(MOCK_USER);
+
         if (token == null) {
-            showAlert("Erro", "Token não encontrado");
+            showMessage("Token não encontrado", "error");
+            Platform.runLater(() -> updateUserList(users));
             return;
         }
 
         new Thread(() -> {
             try {
-                HttpResponse<String> response = HttpClient.newHttpClient().send(
-                        HttpRequest.newBuilder()
-                                .uri(URI.create("http://localhost:8080/api/users/online"))
-                                .header("Authorization", "Bearer " + token)
-                                .GET()
-                                .build(),
-                        HttpResponse.BodyHandlers.ofString()
+                HttpResponse<String> response = HttpManager.getWithToken(
+                        "http://localhost:8080/api/users/online",
+                        token
                 );
 
                 if (response.statusCode() == 200) {
-                    List<Map<String, String>> users = objectMapper.readValue(
+                    List<Map<String, String>> apiUsers = objectMapper.readValue(
                             response.body(),
                             objectMapper.getTypeFactory().constructCollectionType(List.class, Map.class)
                     );
-                    Platform.runLater(() -> updateUserList(users));
+
+                    // Adiciona usuários reais da API
+                    users.addAll(apiUsers);
                 } else {
-                    showAlert("Erro", "Falha ao carregar usuários");
+                    showMessage("Falha ao carregar usuários", "error");
                 }
             } catch (Exception e) {
-                showAlert("Erro", "Falha na conexão: " + e.getMessage());
+                showMessage("Falha na conexão: " + e.getMessage(), "error");
             }
+
+            Platform.runLater(() -> {
+                updateUserList(users);
+                clearMessage();
+            });
         }).start();
     }
 
@@ -150,20 +164,22 @@ public class OnlineUsersController implements Initializable {
                 ChatController.setSelectedUser(selectedUser);
                 App.setRoot("ChatView");
             } catch (IOException e) {
-                showAlert("Erro", "Erro ao carregar o chat");
+                showMessage("Erro ao carregar o chat", "error");
             }
         } else {
-            showAlert("Erro", "Selecione um usuário para conectar");
+            showMessage("Selecione um usuário para conectar", "error");
         }
     }
 
-    private void showAlert(String title, String message) {
+    private void clearMessage() {
+        messageLabel.setText("");
+        messageLabel.getStyleClass().removeAll("error-message", "success-message");
+    }
+
+    private void showMessage(String message, String type) {
         Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
+            messageLabel.setText(message);
+            messageLabel.getStyleClass().add(type + "-message");
         });
     }
 }
