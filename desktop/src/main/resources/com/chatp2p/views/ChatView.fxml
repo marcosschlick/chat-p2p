@@ -13,7 +13,7 @@
             <padding>
                 <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
             </padding>
-            <Button mnemonicParsing="false" onAction="#handleBack" styleClass="back-button">
+            <Button mnemonicParsing="false" onAction="#handleBack" styleClass="icon-button">
                 <graphic>
                     <ImageView styleClass="chevron-icon" fitHeight="24.0" fitWidth="24.0" preserveRatio="true">
                         <Image url="@../icons/chevron-left.png"/>
@@ -40,7 +40,7 @@
             <padding>
                 <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
             </padding>
-            <Button mnemonicParsing="false" onAction="#handleAttachment" styleClass="attachment-button">
+            <Button mnemonicParsing="false" onAction="#handleAttachment" styleClass="icon-button">
                 <graphic>
                     <ImageView styleClass="clip-icon" fitHeight="24.0" fitWidth="24.0" preserveRatio="true">
                         <Image url="@../icons/paperclip.png"/>
@@ -49,7 +49,7 @@
             </Button>
             <TextField fx:id="messageField" promptText="Digite uma mensagem" styleClass="message-input"
                        HBox.hgrow="ALWAYS"/>
-            <Button mnemonicParsing="false" onAction="#handleSendMessage" styleClass="send-button">
+            <Button mnemonicParsing="false" onAction="#handleSendMessage" styleClass="icon-button">
                 <graphic>
                     <ImageView styleClass="send-icon" fitHeight="24.0" fitWidth="24.0" preserveRatio="true">
                         <Image url="@../icons/send.png"/>
