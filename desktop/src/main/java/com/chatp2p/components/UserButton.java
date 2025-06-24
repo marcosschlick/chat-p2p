@@ -15,6 +15,7 @@ public class UserButton extends Button {
 
         VBox container = new VBox(5);
         container.setAlignment(Pos.CENTER);
+        container.setStyle("-fx-background-radius: 10;");
 
         ImageView userImage = new ImageView();
         userImage.setFitWidth(60);
@@ -23,11 +24,11 @@ public class UserButton extends Button {
 
         try {
             if (profileImageUrl == null || profileImageUrl.isEmpty()) {
-                profileImageUrl = getClass().getResource("/com/chatp2p/images/default_user.jpg").toString();
+                profileImageUrl = getClass().getResource("/com/chatp2p/images/default_user.png").toString();
             }
             userImage.setImage(new Image(profileImageUrl, true));
         } catch (Exception e) {
-            userImage.setImage(new Image(getClass().getResource("/com/chatp2p/images/default_user.jpg").toString()));
+            userImage.setImage(new Image(getClass().getResource("/com/chatp2p/images/default_user.png").toString()));
         }
 
         Label userNameLabel = new Label(username);

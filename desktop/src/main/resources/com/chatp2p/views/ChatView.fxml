@@ -3,44 +3,60 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.chatp2p.controllers.ChatController">
     <top>
         <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="chat-header">
-            <children>
-                <Button mnemonicParsing="false" onAction="#handleBack" styleClass="back-button" text="←"/>
-                <Label styleClass="user-icon-small" text="👤"/>
-                <Label fx:id="userLabel" styleClass="user-name-label" text="User_1"/>
-                <Label fx:id="connectionStatus" styleClass="connection-status" text="Não conectado"/>
-            </children>
             <padding>
                 <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
             </padding>
+            <Button mnemonicParsing="false" onAction="#handleBack" styleClass="back-button">
+                <graphic>
+                    <ImageView styleClass="chevron-icon" fitHeight="24.0" fitWidth="24.0" preserveRatio="true">
+                        <Image url="@../icons/chevron-left.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <ImageView styleClass="user-icon-small" fitHeight="24.0" fitWidth="24.0" preserveRatio="true">
+                <Image url="@../icons/user.png"/>
+            </ImageView>
+            <Label fx:id="userLabel" styleClass="user-name-label" text="User_1"/>
+            <Label fx:id="connectionStatus" styleClass="connection-status" text="Não conectado"/>
         </HBox>
     </top>
     <center>
         <ScrollPane fx:id="messagesScrollPane" fitToWidth="true" hbarPolicy="NEVER" styleClass="messages-scroll">
-            <content>
-                <VBox fx:id="messagesContainer" spacing="10.0" styleClass="messages-container">
-                    <padding>
-                        <Insets bottom="10.0" left="15.0" right="15.0" top="10.0"/>
-                    </padding>
-                </VBox>
-            </content>
+            <VBox fx:id="messagesContainer" spacing="10.0" styleClass="messages-container">
+                <padding>
+                    <Insets bottom="10.0" left="15.0" right="15.0" top="10.0"/>
+                </padding>
+            </VBox>
         </ScrollPane>
     </center>
     <bottom>
         <HBox alignment="CENTER" spacing="10.0" styleClass="message-input-container">
-            <children>
-                <Button mnemonicParsing="false" onAction="#handleAttachment" styleClass="attachment-button" text="📎"/>
-                <TextField fx:id="messageField" promptText="Digite uma mensagem" styleClass="message-input"
-                           HBox.hgrow="ALWAYS"/>
-                <Button mnemonicParsing="false" onAction="#handleSendMessage" styleClass="send-button" text="➤"/>
-            </children>
             <padding>
                 <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
             </padding>
+            <Button mnemonicParsing="false" onAction="#handleAttachment" styleClass="attachment-button">
+                <graphic>
+                    <ImageView styleClass="clip-icon" fitHeight="24.0" fitWidth="24.0" preserveRatio="true">
+                        <Image url="@../icons/paperclip.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <TextField fx:id="messageField" promptText="Digite uma mensagem" styleClass="message-input"
+                       HBox.hgrow="ALWAYS"/>
+            <Button mnemonicParsing="false" onAction="#handleSendMessage" styleClass="send-button">
+                <graphic>
+                    <ImageView styleClass="send-icon" fitHeight="24.0" fitWidth="24.0" preserveRatio="true">
+                        <Image url="@../icons/send.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
         </HBox>
     </bottom>
 </BorderPane>

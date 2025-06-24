@@ -182,15 +182,9 @@
 }
 
 .attachment-button {
-    -fx-background-color: #7c4dff;
-    -fx-text-fill: white;
-    -fx-font-size: 16px;
-    -fx-padding: 12;
-    -fx-background-radius: 50;
-    -fx-min-width: 45;
-    -fx-min-height: 45;
-    -fx-cursor: hand;
+    -fx-background-color: transparent;
     -fx-border-color: transparent;
+    -fx-padding: 5px;
 }
 
 .attachment-button:hover {
@@ -217,4 +211,31 @@
     -fx-text-fill: #388e3c; /* Verde */
     -fx-font-weight: bold;
     -fx-alignment: center;
+}
+
+/* Estilos para botões de usuário (quadrados com bordas arredondadas) */
+.user-button {
+    -fx-background-radius: 10; /* Levemente arredondado */
+    -fx-border-radius: 10;
+}
+
+.user-button .image-view {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+/* Estilo para imagem na tela de login */
+.user-icon {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+/* Ajuste para seleção de usuário */
+.user-button.selected {
+    -fx-border-radius: 10;
+}
+
+/* Ajuste no container de imagem do UserButton */
+.user-button .vbox {
+    -fx-background-radius: 10;
 }
