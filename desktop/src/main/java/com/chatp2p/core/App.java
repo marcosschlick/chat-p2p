@@ -7,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+
 import java.io.*;
 
 public class App extends Application {
@@ -17,8 +18,13 @@ public class App extends Application {
     private static String currentUser;
     private static ConnectionManager connectionManager;
 
-    public static void setCurrentUser(String user) { currentUser = user; }
-    public static String getCurrentUser() { return currentUser; }
+    public static void setCurrentUser(String user) {
+        currentUser = user;
+    }
+
+    public static String getCurrentUser() {
+        return currentUser;
+    }
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -65,9 +71,17 @@ public class App extends Application {
         return FXMLLoader.load(App.class.getResource("/com/chatp2p/views/" + fxml + ".fxml"));
     }
 
-    public static Stage getPrimaryStage() { return primaryStage; }
-    public static void setAuthToken(String token) { authToken = token; }
-    public static String getAuthToken() { return authToken; }
+    public static Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
+    public static void setAuthToken(String token) {
+        authToken = token;
+    }
+
+    public static String getAuthToken() {
+        return authToken;
+    }
 
     private static void logoutOnExit() {
         new Thread(() -> {
