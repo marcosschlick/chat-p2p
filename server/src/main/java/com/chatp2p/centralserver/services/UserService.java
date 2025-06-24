@@ -14,9 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
-    @Autowired private UserRepository userRepository;
-    @Autowired private PasswordEncoder passwordEncoder;
-    @Autowired private JwtUtil jwtUtil;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Transactional
     public void registerUser(CreateUserDTO dto) throws AuthException {

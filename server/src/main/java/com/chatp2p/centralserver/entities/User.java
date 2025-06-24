@@ -73,7 +73,11 @@ public class User {
         this.profileImageUrl = profileImageUrl;
     }
 
-    public String getLastKnownIp() { return lastKnownIp; }
+    public String getLastKnownIp() {
+        return lastKnownIp;
+    }
 
-    public void setLastKnownIp(String lastKnownIp) { this.lastKnownIp = lastKnownIp; }
+    public void setLastKnownIp(String lastKnownIp) {
+        this.lastKnownIp = lastKnownIp;
+    }
 }

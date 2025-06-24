@@ -5,7 +5,8 @@ public class LoginResponse {
     private String username;
     private String profileImageUrl;
 
-    public LoginResponse() {}
+    public LoginResponse() {
+    }
 
     public LoginResponse(String token, String username, String profileImageUrl) {
         this.token = token;
