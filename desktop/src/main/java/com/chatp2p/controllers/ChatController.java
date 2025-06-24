@@ -1,5 +1,8 @@
 package com.chatp2p.controllers;
 
+import com.chatp2p.components.FileMessageBubble;
+import com.chatp2p.components.MessageBubble;
+import com.chatp2p.components.SystemMessage;
 import com.chatp2p.core.App;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -120,64 +123,16 @@ public class ChatController implements Initializable {
         });
     }
 
-    private void addSystemMessage(String message) {
-        HBox container = new HBox();
-        container.setAlignment(Pos.CENTER);
-        container.setPadding(new Insets(5));
-
-        Label label = new Label(message);
-        label.setStyle("-fx-text-fill: #aaaaaa; -fx-font-size: 12px; -fx-font-style: italic;");
-        container.getChildren().add(label);
-
-        messagesContainer.getChildren().add(container);
+    public void addSystemMessage(String message) {
+        messagesContainer.getChildren().add(new SystemMessage(message));
     }
 
     private void addMessage(String message, boolean sent) {
-        Platform.runLater(() -> {
-            HBox container = new HBox();
-            container.setPadding(new Insets(5, 10, 5, 10));
-            container.setAlignment(sent ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
-
-            VBox bubble = new VBox(5);
-            bubble.setPadding(new Insets(8, 12, 8, 12));
-            bubble.setStyle("-fx-background-color: " + (sent ? "#DCF8C6" : "#FFFFFF") + "; -fx-background-radius: 12;");
-
-            Label messageLabel = new Label(message);
-            messageLabel.setWrapText(true);
-            messageLabel.setFont(Font.font("Segoe UI", 14));
-            messageLabel.setMaxWidth(300);
-
-            Label timeLabel = new Label(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
-            timeLabel.setStyle("-fx-text-fill: #777777; -fx-font-size: 10px;");
-
-            bubble.getChildren().addAll(messageLabel, timeLabel);
-            container.getChildren().add(bubble);
-            messagesContainer.getChildren().add(container);
-        });
+        messagesContainer.getChildren().add(new MessageBubble(message, sent));
     }
 
     private void addFileMessage(String fileName, boolean sent) {
-        Platform.runLater(() -> {
-            HBox container = new HBox();
-            container.setPadding(new Insets(5, 10, 5, 10));
-            container.setAlignment(sent ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
-
-            VBox bubble = new VBox(5);
-            bubble.setPadding(new Insets(8, 12, 8, 12));
-            bubble.setStyle("-fx-background-color: " + (sent ? "#DCF8C6" : "#FFFFFF") + "; -fx-background-radius: 12;");
-
-            Label fileLabel = new Label("📎 " + fileName);
-            fileLabel.setWrapText(true);
-            fileLabel.setFont(Font.font("Segoe UI", 14));
-            fileLabel.setMaxWidth(300);
-
-            Label timeLabel = new Label(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
-            timeLabel.setStyle("-fx-text-fill: #777777; -fx-font-size: 10px;");
-
-            bubble.getChildren().addAll(fileLabel, timeLabel);
-            container.getChildren().add(bubble);
-            messagesContainer.getChildren().add(container);
-        });
+        messagesContainer.getChildren().add(new FileMessageBubble(fileName, sent));
     }
 
     @FXML
