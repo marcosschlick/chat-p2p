@@ -197,6 +197,11 @@
     -fx-background-color: #6a3de8;
 }
 
+.connection-status {
+    -fx-font-size: 12px;
+    -fx-padding: 0 0 0 15px;
+}
+
 /* Responsividade */
 @media screen and (max-width: 600px) {
 }
