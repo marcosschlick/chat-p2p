@@ -51,7 +51,7 @@ public class OnlineUsersController implements Initializable {
 
     private void refreshOnlineUsers() {
         String token = App.getAuthToken();
-        List<Map<String, String>> users = new ArrayList<>();
+        List<Map<String, String>> users = new ArrayList<>(); // Inicia vazia
 
         if (token == null) {
             showMessage("Token não encontrado", "error");
@@ -65,17 +65,28 @@ public class OnlineUsersController implements Initializable {
                         "http://localhost:8080/api/users/online",
                         token
                 );
+
+                System.out.println("Response status: " + response.statusCode()); // Log para debug
+                System.out.println("Response body: " + response.body()); // Log para debug
+
                 if (response.statusCode() == 200) {
-                    List<Map<String, String>> apiUsers = objectMapper.readValue(
+                    // Corrige a desserialização
+                    List<Map<String, Object>> apiUsers = objectMapper.readValue(
                             response.body(),
                             objectMapper.getTypeFactory().constructCollectionType(List.class, Map.class)
                     );
 
-                    users.addAll(apiUsers);
+                    // Converte para Map<String, String>
+                    for (Map<String, Object> user : apiUsers) {
+                        Map<String, String> stringMap = new HashMap<>();
+                        user.forEach((key, value) -> stringMap.put(key, value != null ? value.toString() : ""));
+                        users.add(stringMap);
+                    }
                 } else {
-                    showMessage("Falha ao carregar usuários", "error");
+                    showMessage("Falha ao carregar usuários: " + response.statusCode(), "error");
                 }
             } catch (Exception e) {
+                System.err.println("Erro ao processar resposta: " + e.getMessage());
                 showMessage("Falha na conexão: " + e.getMessage(), "error");
             }
 
@@ -88,14 +99,24 @@ public class OnlineUsersController implements Initializable {
 
     private void updateUserList(List<Map<String, String>> users) {
         usersContainer.getChildren().clear();
-        userIps.clear(); // Limpa IPs anteriores
+        userIps.clear();
+
+        // DEBUG: Verifique antes de renderizar
+        System.out.println("Usuários para renderizar: " + users.size());
 
         for (Map<String, String> user : users) {
             String username = user.get("username");
-            String ip = user.get("ip"); // Novo: obtém o IP
+            String ip = user.get("ip");
 
+            // Verifique se os campos existem
+            if (username == null) {
+                System.err.println("Usuário sem username: " + user);
+                continue;
+            }
+
+            // Filtra usuário atual
             if (!username.equals(App.getCurrentUser())) {
-                userIps.put(username, ip); // Armazena IP do usuário
+                userIps.put(username, ip != null ? ip : "127.0.0.1");
                 addUserButton(username, user.get("profileImageUrl"));
             }
         }
