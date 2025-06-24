@@ -7,15 +7,16 @@ public class Message implements Serializable {
         TEXT,
         FILE,
         CONNECTION_REQUEST,
-        SYSTEM // Novo tipo para mensagens de sistema
+        SYSTEM
     }
 
-    private String sender;
-    private String recipient;
+    private static final long serialVersionUID = 1L;
+    private final String sender;
+    private final String recipient;
+    private final MessageType type;
     private String content;
     private String fileName;
     private byte[] fileData;
-    private MessageType type;
 
     public Message(String sender, String recipient, String content, MessageType type) {
         this.sender = sender;
