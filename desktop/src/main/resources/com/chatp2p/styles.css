@@ -1,37 +1,25 @@
-/* Estilos Globais */
+/* ===== ESTILOS GLOBAIS ===== */
 .root {
     -fx-background-color: #2d2d2d;
     -fx-font-family: "Segoe UI", Arial, sans-serif;
 }
 
-
-/* Tela de Login */
-.login-container {
-    -fx-background-color: #2d2d2d;
-    -fx-background-radius: 10;
-}
-
-.user-button {
-    -fx-background-color: #444444;
-    -fx-background-radius: 50%;
-    -fx-min-width: 100;
-    -fx-min-height: 100;
-    -fx-max-width: 100;
-    -fx-max-height: 100;
-    -fx-padding: 10;
-    -fx-cursor: hand;
-    -fx-border-color: transparent;
+.error-message {
+    -fx-text-fill: #d32f2f;
+    -fx-font-weight: bold;
     -fx-alignment: center;
 }
 
-.user-button:hover {
-    -fx-background-color: #555555;
+.success-message {
+    -fx-text-fill: #388e3c;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
 }
 
-.user-button.selected {
-    -fx-background-color: #7c4dff;
-    -fx-border-color: #6a3de8;
-    -fx-border-width: 2;
+/* ===== TELA DE LOGIN ===== */
+.login-container {
+    -fx-background-color: #2d2d2d;
+    -fx-background-radius: 10;
 }
 
 .login-field {
@@ -47,6 +35,11 @@
     -fx-background-color: white;
     -fx-border-color: #7c4dff;
     -fx-border-width: 2;
+}
+
+.user-icon {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
 }
 
 .primary-button {
@@ -94,7 +87,7 @@
     -fx-background-color: #7e57c2;
 }
 
-/* Tela de Usuários Online */
+/* ===== TELA DE USUÁRIOS ONLINE ===== */
 .users-container {
     -fx-background-color: #2d2d2d;
     -fx-alignment: center;
@@ -107,9 +100,29 @@
     -fx-padding: 0 0 20 0;
 }
 
-/* ... (mantenha os estilos globais e de outras telas) ... */
+.user-button {
+    -fx-background-color: #444444;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-min-width: 100;
+    -fx-min-height: 100;
+    -fx-padding: 10;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-alignment: center;
+}
 
-/* Tela de Chat */
+.user-button:hover {
+    -fx-background-color: #555555;
+}
+
+.user-button.selected {
+    -fx-background-color: #7c4dff;
+    -fx-border-color: #6a3de8;
+    -fx-border-width: 2;
+}
+
+/* ===== TELA DE CHAT ===== */
 .chat-header {
     -fx-background-color: #b19cd9;
     -fx-padding: 15;
@@ -165,7 +178,7 @@
     -fx-border-width: 2;
 }
 
-.send-button {
+.icon-button {
     -fx-background-color: #7c4dff;
     -fx-text-fill: white;
     -fx-font-size: 16px;
@@ -177,65 +190,6 @@
     -fx-border-color: transparent;
 }
 
-.send-button:hover {
+.icon-button:hover {
     -fx-background-color: #6a3de8;
-}
-
-.attachment-button {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-padding: 5px;
-}
-
-.attachment-button:hover {
-    -fx-background-color: #6a3de8;
-}
-
-.connection-status {
-    -fx-font-size: 12px;
-    -fx-padding: 0 0 0 15px;
-}
-
-/* Responsividade */
-@media screen and (max-width: 600px) {
-}
-
-/* Estilos para mensagens */
-.error-message {
-    -fx-text-fill: #d32f2f; /* Vermelho */
-    -fx-font-weight: bold;
-    -fx-alignment: center;
-}
-
-.success-message {
-    -fx-text-fill: #388e3c; /* Verde */
-    -fx-font-weight: bold;
-    -fx-alignment: center;
-}
-
-/* Estilos para botões de usuário (quadrados com bordas arredondadas) */
-.user-button {
-    -fx-background-radius: 10; /* Levemente arredondado */
-    -fx-border-radius: 10;
-}
-
-.user-button .image-view {
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-}
-
-/* Estilo para imagem na tela de login */
-.user-icon {
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-}
-
-/* Ajuste para seleção de usuário */
-.user-button.selected {
-    -fx-border-radius: 10;
-}
-
-/* Ajuste no container de imagem do UserButton */
-.user-button .vbox {
-    -fx-background-radius: 10;
 }
