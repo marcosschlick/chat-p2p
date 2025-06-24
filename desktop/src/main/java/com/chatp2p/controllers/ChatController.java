@@ -72,8 +72,11 @@ public class ChatController implements Initializable {
         if (sender.equals(selectedUser)) {
             connectionStatus.setText("Conectado");
             connectionStatus.setStyle("-fx-text-fill: #388e3c;");
-            addSystemMessage("Conexão estabelecida com " + sender);
         }
+    }
+
+    public void addConnectionMessage(String message) {
+        addSystemMessage(message);
     }
 
     public boolean isChattingWith(String username) {
@@ -85,7 +88,6 @@ public class ChatController implements Initializable {
         String message = messageField.getText().trim();
         if (!message.isEmpty()) {
             App.sendMessage(selectedUser, message);
-            addSentMessage(message);
             messageField.clear();
         }
     }
