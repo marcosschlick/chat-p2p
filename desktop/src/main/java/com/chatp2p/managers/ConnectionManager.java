@@ -20,7 +20,7 @@ public class ConnectionManager {
     public void startP2PServer() {
         executorService = Executors.newCachedThreadPool();
         try {
-            serverSocket = new ServerSocket(0);
+            serverSocket = new ServerSocket(55555);
             System.out.println("Servidor P2P na porta: " + serverSocket.getLocalPort());
 
             executorService.submit(() -> {
