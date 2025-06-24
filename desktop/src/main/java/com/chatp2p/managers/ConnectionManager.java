@@ -65,19 +65,8 @@ public class ConnectionManager {
     private void startMessageListener(String sender, ObjectInputStream ois) {
         executorService.submit(() -> {
             try {
-                while (true) {
+                while (!Thread.currentThread().isInterrupted()) {
                     Message message = (Message) ois.readObject();
-
-                    // Tratar mensagem de conexão
-                    if (message.getType() == Message.MessageType.CONNECTION_REQUEST) {
-                        Platform.runLater(() -> {
-                            if (ChatController.getInstance() != null &&
-                                    ChatController.getInstance().isChattingWith(sender)) {
-                                ChatController.getInstance().addSystemMessage(sender + " entrou no chat");
-                            }
-                        });
-                        continue;
-                    }
 
                     Platform.runLater(() -> {
                         if (ChatController.getInstance() != null &&
@@ -95,18 +84,11 @@ public class ConnectionManager {
                         }
                     });
                 }
-            } catch (SocketException e) {
+            } catch (SocketException | EOFException e) {
                 // Conexão fechada normalmente
             } catch (Exception e) {
                 System.err.println("Erro na conexão com " + sender + ": " + e.getMessage());
             } finally {
-                Platform.runLater(() -> {
-                    if (ChatController.getInstance() != null &&
-                            ChatController.getInstance().isChattingWith(sender)) {
-                        ChatController.getInstance().addSystemMessage(sender + " desconectou");
-                    }
-                });
-
                 try {
                     if (activeConnections.containsKey(sender)) {
                         activeConnections.get(sender).close();
@@ -248,12 +230,19 @@ public class ConnectionManager {
     public void notifyAppClosing() {
         for (String user : activeConnections.keySet()) {
             if (outputStreams.containsKey(user)) {
-                sendMessage(user, new Message(
-                        App.getCurrentUser(),
-                        user,
-                        App.getCurrentUser() + " fechou o aplicativo chat-p2p",
-                        Message.MessageType.SYSTEM
-                ));
+                try {
+                    // Envio síncrono para garantir entrega
+                    Message msg = new Message(
+                            App.getCurrentUser(),
+                            user,
+                            App.getCurrentUser() + " fechou o aplicativo chat-p2p",
+                            Message.MessageType.SYSTEM
+                    );
+                    outputStreams.get(user).writeObject(msg);
+                    outputStreams.get(user).flush(); // Forçar envio imediato
+                } catch (IOException e) {
+                    System.err.println("Erro ao notificar fechamento para " + user + ": " + e.getMessage());
+                }
             }
         }
     }

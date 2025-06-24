@@ -67,11 +67,17 @@ public class App extends Application {
         if (isShutdown) return;
         isShutdown = true;
 
-        if (authToken != null) {
+        // Primeiro: notificar sobre o fechamento
+        if (connectionManager != null) {
             connectionManager.notifyAppClosing();
+        }
+
+        // Segundo: logout e limpeza
+        if (authToken != null) {
             logoutOnExit();
         }
 
+        // Terceiro: encerrar conexões
         if (connectionManager != null) {
             connectionManager.shutdown();
         }
