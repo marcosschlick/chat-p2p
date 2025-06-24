@@ -55,7 +55,7 @@ public class ConnectionManager {
                 }
 
                 sendMessage(sender, new Message(
-                        App.getCurrentUser(), sender, "Conexão estabelecida", Message.MessageType.CONNECTION_ACCEPTED
+                        App.getCurrentUser(), sender, "entrou no chat", Message.MessageType.CONNECTION_ACCEPTED
                 ));
 
                 startMessageListener(sender, ois);
@@ -80,11 +80,20 @@ public class ConnectionManager {
                                 );
                             } else if (message.getType() == Message.MessageType.TEXT) {
                                 ChatController.getInstance().addReceivedMessage(message.getContent());
+                            } else if (message.getType() == Message.MessageType.CONNECTION_ACCEPTED) {
+                                ChatController.getInstance().addConnectionMessage(message.getContent());
                             }
                         }
                     });
                 }
             } catch (Exception e) {
+                Platform.runLater(() -> {
+                    if (ChatController.getInstance() != null &&
+                            ChatController.getInstance().isChattingWith(sender)) {
+                        ChatController.getInstance().addSystemMessage(sender + " saiu do chat");
+                    }
+                });
+
                 activeConnections.remove(sender);
                 outputStreams.remove(sender);
             }
