@@ -72,10 +72,14 @@ public class ChatController implements Initializable {
         if (sender.equals(selectedUser)) {
             connectionStatus.setText("Conectado");
             connectionStatus.setStyle("-fx-text-fill: #388e3c;");
+
+            // Adicionar mensagem de sistema para ambos os lados
+            addSystemMessage("Conexão estabelecida com " + sender);
         }
     }
 
     public void addConnectionMessage(String message) {
+        // Alterado para usar addSystemMessage em vez de adicionar como mensagem normal
         addSystemMessage(message);
     }
 

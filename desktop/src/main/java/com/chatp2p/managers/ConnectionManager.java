@@ -48,14 +48,19 @@ public class ConnectionManager {
                 activeConnections.put(sender, socket);
                 outputStreams.put(sender, new ObjectOutputStream(socket.getOutputStream()));
 
-                if (ChatController.getInstance() != null) {
-                    Platform.runLater(() ->
-                            ChatController.getInstance().onConnectionEstablished(sender)
-                    );
-                }
+                // Notificar ambos os usuários sobre a conexão estabelecida
+                String connectionMessage = "Conexão estabelecida com " + sender;
+                Platform.runLater(() -> {
+                    if (ChatController.getInstance() != null) {
+                        ChatController.getInstance().addConnectionMessage(connectionMessage);
+                    }
+                });
 
+                // Enviar confirmação de conexão para o remetente
                 sendMessage(sender, new Message(
-                        App.getCurrentUser(), sender, "entrou no chat", Message.MessageType.CONNECTION_ACCEPTED
+                        App.getCurrentUser(), sender,
+                        "Conexão estabelecida com " + App.getCurrentUser(),
+                        Message.MessageType.CONNECTION_ACCEPTED
                 ));
 
                 startMessageListener(sender, ois);
@@ -81,7 +86,8 @@ public class ConnectionManager {
                             } else if (message.getType() == Message.MessageType.TEXT) {
                                 ChatController.getInstance().addReceivedMessage(message.getContent());
                             } else if (message.getType() == Message.MessageType.CONNECTION_ACCEPTED) {
-                                ChatController.getInstance().addConnectionMessage(message.getContent());
+                                // Tratar como mensagem de sistema
+                                ChatController.getInstance().addSystemMessage(message.getContent());
                             }
                         }
                     });

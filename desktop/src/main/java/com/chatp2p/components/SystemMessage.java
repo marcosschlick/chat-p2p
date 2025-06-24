@@ -12,7 +12,7 @@ public class SystemMessage extends HBox {
         setPadding(new Insets(5));
 
         Label label = new Label(message);
-        label.setStyle("-fx-text-fill: #aaaaaa; -fx-font-size: 12px; -fx-font-style: italic;");
+        label.setStyle("-fx-text-fill: #aaaaaa; -fx-font-size: 12px; -fx-font-style: italic; -fx-padding: 5px;");
         getChildren().add(label);
     }
 }
