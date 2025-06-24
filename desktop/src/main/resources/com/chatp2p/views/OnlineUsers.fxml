@@ -12,7 +12,11 @@
                 <Insets bottom="40.0" left="40.0" right="40.0" top="20.0"/>
             </padding>
             <Label styleClass="title-label" text="USUÁRIOS ONLINE:"/>
-            <VBox fx:id="usersContainer" alignment="CENTER" maxWidth="400.0" spacing="15.0"/>
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                        styleClass="users-scroll" maxHeight="400.0">
+                <FlowPane fx:id="usersContainer" alignment="CENTER" hgap="20.0" vgap="20.0"
+                          prefWrapLength="600.0" styleClass="users-flow-pane"/>
+            </ScrollPane>
             <Label fx:id="messageLabel" styleClass="error-message"/>
             <HBox alignment="CENTER">
                 <Button fx:id="connectButton" mnemonicParsing="false" onAction="#handleConnect"

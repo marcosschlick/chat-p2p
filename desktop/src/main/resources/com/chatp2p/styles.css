@@ -101,12 +101,47 @@
     -fx-padding: 0 0 20 0;
 }
 
+.users-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.users-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.users-scroll .scroll-bar:vertical {
+    -fx-background-color: #444444;
+    -fx-border-color: transparent;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+}
+
+.users-scroll .scroll-bar:vertical .track {
+    -fx-background-color: #333333;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+}
+
+.users-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #7c4dff;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+}
+
+.users-flow-pane {
+    -fx-background-color: transparent;
+    -fx-padding: 10;
+}
+
 .user-button {
     -fx-background-color: #444444;
     -fx-background-radius: 10;
     -fx-border-radius: 10;
-    -fx-min-width: 100;
-    -fx-min-height: 100;
+    -fx-min-width: 120;
+    -fx-min-height: 120;
+    -fx-max-width: 120;
+    -fx-max-height: 120;
     -fx-padding: 10;
     -fx-cursor: hand;
     -fx-border-color: transparent;
