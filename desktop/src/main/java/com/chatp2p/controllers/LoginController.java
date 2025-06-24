@@ -66,9 +66,11 @@ public class LoginController {
                     App.setAuthToken(json.get("token").asText());
                     App.setCurrentUser(username);
 
-                    // Armazenar URL da imagem de perfil
                     if (json.has("profileImageUrl")) {
-                        App.setProfileImageUrl(json.get("profileImageUrl").asText());
+                        // Construir URL completa para a imagem
+                        String imageName = json.get("profileImageUrl").asText();
+                        String fullImageUrl = "/com/chatp2p/images/" + imageName;
+                        App.setProfileImageUrl(fullImageUrl);
                     }
 
                     Platform.runLater(() -> {

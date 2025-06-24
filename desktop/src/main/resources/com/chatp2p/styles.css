@@ -246,7 +246,7 @@
 
 .profile-image-button {
     -fx-background-color: #444444;
-    -fx-background-radius: 10z;
+    -fx-background-radius: 10;
     -fx-padding: 0;
     -fx-cursor: hand;
     -fx-min-width: 160;

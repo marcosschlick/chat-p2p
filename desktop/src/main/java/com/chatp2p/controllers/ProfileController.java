@@ -6,22 +6,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.stage.FileChooser;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class ProfileController implements Initializable {
@@ -40,7 +38,19 @@ public class ProfileController implements Initializable {
     private Button backButton;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private String selectedImageBase64 = null;
+    private String selectedImageName = null;  // Armazena apenas o nome do arquivo
+
+    private final String[] availableImages = {
+            "default_user.png",
+            "bob_esponja.jpg",
+            "chaves.png",
+            "groot.jpg",
+            "sasuke.png",
+            "squirtle.png",
+            "suarez.png",
+            "vegeta.png",
+            "capitao_america.png"
+    };
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -50,8 +60,16 @@ public class ProfileController implements Initializable {
 
     private void loadProfileImage() {
         try {
-            Image defaultImage = new Image(getClass().getResourceAsStream("/com/chatp2p/images/default_user.png"));
-            profileImageView.setImage(defaultImage);
+            String profileImageUrl = App.getProfileImageUrl();
+            if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+                // Se a URL já está completa, usa diretamente
+                Image image = new Image(profileImageUrl);
+                profileImageView.setImage(image);
+            } else {
+                // Caso contrário, carrega a padrão
+                Image defaultImage = new Image(getClass().getResourceAsStream("/com/chatp2p/images/default_user.png"));
+                profileImageView.setImage(defaultImage);
+            }
         } catch (Exception e) {
             System.err.println("Erro ao carregar imagem padrão: " + e.getMessage());
         }
@@ -59,27 +77,83 @@ public class ProfileController implements Initializable {
 
     @FXML
     private void handleChangePhoto() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Selecionar Foto do Perfil");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Imagens", "*.png", "*.jpg", "*.jpeg", "*.gif")
-        );
+        // Criar um diálogo personalizado
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Selecionar Foto do Perfil");
+        dialog.setHeaderText("Escolha uma imagem:");
 
-        File file = fileChooser.showOpenDialog(App.getPrimaryStage());
-        if (file != null) {
+        // Configurar botões
+        ButtonType selectButtonType = new ButtonType("Selecionar", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(selectButtonType, ButtonType.CANCEL);
+
+        // Layout para as imagens
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 20, 20, 20));
+
+        int col = 0;
+        int row = 0;
+        for (String imageName : availableImages) {
             try {
-                byte[] imageBytes = Files.readAllBytes(file.toPath());
-                selectedImageBase64 = Base64.getEncoder().encodeToString(imageBytes);
+                // Carregar a imagem do recurso
+                InputStream is = getClass().getResourceAsStream("/com/chatp2p/images/" + imageName);
+                if (is == null) {
+                    System.err.println("Imagem não encontrada: " + imageName);
+                    continue;
+                }
+                Image image = new Image(is);
+                ImageView imageView = new ImageView(image);
+                imageView.setFitWidth(80);
+                imageView.setFitHeight(80);
+                imageView.setPreserveRatio(true);
 
-                // Atualiza a imagem exibida
-                Image newImage = new Image(file.toURI().toString());
+                // Container para a imagem (para borda e clique)
+                VBox container = new VBox(imageView);
+                container.setAlignment(Pos.CENTER);
+                container.setPadding(new Insets(5));
+                container.setStyle("-fx-border-color: #555555; -fx-border-radius: 5;");
+                container.setOnMouseClicked(e -> {
+                    // Define o resultado do diálogo como o nome da imagem
+                    dialog.setResult(imageName);
+                });
+
+                grid.add(container, col, row);
+                col++;
+                if (col > 2) { // 3 colunas
+                    col = 0;
+                    row++;
+                }
+            } catch (Exception e) {
+                System.err.println("Erro ao carregar imagem: " + imageName + ": " + e.getMessage());
+            }
+        }
+
+        dialog.getDialogPane().setContent(grid);
+
+        // Converter o resultado para o nome da imagem
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == selectButtonType) {
+                return dialog.getResult();
+            }
+            return null;
+        });
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(imageName -> {
+            try {
+                // Armazena apenas o nome do arquivo
+                selectedImageName = imageName;
+
+                // Atualizar a exibição
+                Image newImage = new Image(getClass().getResource("/com/chatp2p/images/" + imageName).toString());
                 profileImageView.setImage(newImage);
 
                 showMessage("Foto selecionada com sucesso!", "success");
-            } catch (IOException e) {
+            } catch (Exception e) {
                 showMessage("Erro ao carregar a imagem", "error");
             }
-        }
+        });
     }
 
     @FXML
@@ -118,8 +192,9 @@ public class ProfileController implements Initializable {
                 profileData.put("password", newPassword);
             }
 
-            if (selectedImageBase64 != null) {
-                profileData.put("profileImageUrl", "data:image/png;base64," + selectedImageBase64);
+            // Envia apenas o nome do arquivo, não o Base64
+            if (selectedImageName != null) {
+                profileData.put("profileImageUrl", selectedImageName);
             }
 
             String jsonBody = objectMapper.writeValueAsString(profileData);
@@ -137,8 +212,14 @@ public class ProfileController implements Initializable {
                     if (!newUsername.equals(App.getCurrentUser())) {
                         App.setCurrentUser(newUsername);
                     }
+
+                    // Atualiza a URL da imagem no app
+                    if (selectedImageName != null) {
+                        App.setProfileImageUrl("/com/chatp2p/images/" + selectedImageName);
+                    }
+
                     newPasswordField.clear();
-                    selectedImageBase64 = null; // Resetar após atualização
+                    selectedImageName = null; // Resetar após atualização
                 } else {
                     showMessage("Erro ao atualizar perfil: " + response.statusCode(), "error");
                 }

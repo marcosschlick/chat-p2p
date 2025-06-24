@@ -109,6 +109,10 @@ public class OnlineUsersController implements Initializable {
     }
 
     private void addUserButton(String username, String profileImageUrl) {
+        if (profileImageUrl != null && !profileImageUrl.startsWith("/com/chatp2p/images/")) {
+            profileImageUrl = "/com/chatp2p/images/" + profileImageUrl;
+        }
+
         UserButton userButton = new UserButton(username, profileImageUrl);
 
         userButton.setOnAction(e -> {
