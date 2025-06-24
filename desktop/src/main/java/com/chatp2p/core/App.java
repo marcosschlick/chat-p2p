@@ -64,7 +64,7 @@ public class App extends Application {
 
     private void shutdown() {
         if (authToken != null) {
-            connectionManager.notifyAllUsersLeft();
+            connectionManager.notifyAppClosing();
             logoutOnExit();
         }
         connectionManager.shutdown();

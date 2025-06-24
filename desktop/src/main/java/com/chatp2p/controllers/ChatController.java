@@ -124,6 +124,7 @@ public class ChatController implements Initializable {
 
     @FXML
     private void handleBack() {
+        // Notificar que o usuário saiu do chat
         App.notifyUserLeft(selectedUser);
 
         try {

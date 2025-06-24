@@ -67,11 +67,22 @@ public class ConnectionManager {
             try {
                 while (true) {
                     Message message = (Message) ois.readObject();
+
+                    // Tratar mensagem de conexão
+                    if (message.getType() == Message.MessageType.CONNECTION_REQUEST) {
+                        Platform.runLater(() -> {
+                            if (ChatController.getInstance() != null &&
+                                    ChatController.getInstance().isChattingWith(sender)) {
+                                ChatController.getInstance().addSystemMessage(sender + " entrou no chat");
+                            }
+                        });
+                        continue;
+                    }
+
                     Platform.runLater(() -> {
                         if (ChatController.getInstance() != null &&
                                 ChatController.getInstance().isChattingWith(sender)) {
 
-                            // Tratar diferentes tipos de mensagens
                             if (message.getType() == Message.MessageType.FILE) {
                                 ChatController.getInstance().addReceivedFile(
                                         message.getFileName(), message.getFileData()
@@ -84,13 +95,25 @@ public class ConnectionManager {
                         }
                     });
                 }
+            } catch (SocketException e) {
+                // Conexão fechada normalmente
             } catch (Exception e) {
+                System.err.println("Erro na conexão com " + sender + ": " + e.getMessage());
+            } finally {
                 Platform.runLater(() -> {
                     if (ChatController.getInstance() != null &&
                             ChatController.getInstance().isChattingWith(sender)) {
-                        ChatController.getInstance().addSystemMessage(sender + " saiu do chat");
+                        ChatController.getInstance().addSystemMessage(sender + " desconectou");
                     }
                 });
+
+                try {
+                    if (activeConnections.containsKey(sender)) {
+                        activeConnections.get(sender).close();
+                    }
+                } catch (IOException ex) {
+                    System.err.println("Erro ao fechar socket: " + ex.getMessage());
+                }
 
                 activeConnections.remove(sender);
                 outputStreams.remove(sender);
@@ -186,8 +209,18 @@ public class ConnectionManager {
 
     public void shutdown() {
         try {
+            // Primeiro notifique sobre o fechamento
+            notifyAppClosing();
+
+            // Depois feche as conexões
             if (serverSocket != null) serverSocket.close();
-            for (Socket socket : activeConnections.values()) socket.close();
+            for (Socket socket : activeConnections.values()) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    System.err.println("Erro ao fechar socket: " + e.getMessage());
+                }
+            }
             if (executorService != null) executorService.shutdownNow();
         } catch (IOException e) {
             e.printStackTrace();
@@ -205,11 +238,17 @@ public class ConnectionManager {
         }
     }
 
-    public void notifyAllUsersLeft() {
+    public void notifyAppClosing() {
         for (String user : activeConnections.keySet()) {
-            notifyUserLeft(user);
+            if (outputStreams.containsKey(user)) {
+                sendMessage(user, new Message(
+                        App.getCurrentUser(),
+                        user,
+                        App.getCurrentUser() + " fechou o aplicativo chat-p2p",
+                        Message.MessageType.SYSTEM
+                ));
+            }
         }
     }
-
 
 }
