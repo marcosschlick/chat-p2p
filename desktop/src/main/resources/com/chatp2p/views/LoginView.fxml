@@ -12,9 +12,11 @@
             <Insets bottom="40.0" left="40.0" right="40.0" top="40.0"/>
         </padding>
         <VBox alignment="CENTER" spacing="10.0">
-            <ImageView fitWidth="160" fitHeight="160" preserveRatio="true" styleClass="user-icon">
-                <Image url="@../images/default_user.png"/>
-            </ImageView>
+            <StackPane styleClass="user-icon-container">
+                <ImageView fitWidth="240" fitHeight="240" preserveRatio="true">
+                    <Image url="@../images/default_user.png"/>
+                </ImageView>
+            </StackPane>
         </VBox>
         <VBox spacing="15.0">
             <TextField fx:id="usernameField" promptText="Digite seu nome de usuário" styleClass="login-field"/>

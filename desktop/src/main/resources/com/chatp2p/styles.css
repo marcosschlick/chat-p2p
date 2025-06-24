@@ -38,9 +38,16 @@
     -fx-border-width: 2;
 }
 
-.user-icon {
+.user-icon-container {
+    -fx-background-color: #444444;
     -fx-background-radius: 10;
-    -fx-border-radius: 10;
+    -fx-min-width: 240;
+    -fx-pref-width: 240;
+    -fx-max-width: 240;
+    -fx-min-height: 240;
+    -fx-pref-height: 240;
+    -fx-max-height: 240;
+    -fx-padding: 0;
 }
 
 .primary-button {
