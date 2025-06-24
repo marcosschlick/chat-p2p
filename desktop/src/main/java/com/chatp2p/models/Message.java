@@ -29,10 +29,27 @@ public class Message implements Serializable {
         this.type = type;
     }
 
-    public String getSender() { return sender; }
-    public String getRecipient() { return recipient; }
-    public String getContent() { return content; }
-    public String getFileName() { return fileName; }
-    public byte[] getFileData() { return fileData; }
-    public MessageType getType() { return type; }
+    public String getSender() {
+        return sender;
+    }
+
+    public String getRecipient() {
+        return recipient;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public byte[] getFileData() {
+        return fileData;
+    }
+
+    public MessageType getType() {
+        return type;
+    }
 }

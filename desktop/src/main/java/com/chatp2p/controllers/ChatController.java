@@ -16,6 +16,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -29,13 +30,24 @@ public class ChatController implements Initializable {
     private static ChatController instance;
     private static String selectedUser;
 
-    @FXML private Label userLabel;
-    @FXML private VBox messagesContainer;
-    @FXML private ScrollPane messagesScrollPane;
-    @FXML private TextField messageField;
+    @FXML
+    private Label userLabel;
+    @FXML
+    private VBox messagesContainer;
+    @FXML
+    private ScrollPane messagesScrollPane;
+    @FXML
+    private TextField messageField;
+    @FXML
+    private Label connectionStatus;
 
-    public static ChatController getInstance() { return instance; }
-    public static void setSelectedUser(String user) { selectedUser = user; }
+    public static ChatController getInstance() {
+        return instance;
+    }
+
+    public static void setSelectedUser(String user) {
+        selectedUser = user;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -49,10 +61,14 @@ public class ChatController implements Initializable {
         messageField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) handleSendMessage();
         });
+        connectionStatus.setText("Não conectado");
+        connectionStatus.setStyle("-fx-text-fill: #d32f2f;");
     }
 
     public void onConnectionEstablished(String sender) {
         if (sender.equals(selectedUser)) {
+            connectionStatus.setText("Conectado");
+            connectionStatus.setStyle("-fx-text-fill: #388e3c;");
             addSystemMessage("Conexão estabelecida com " + sender);
         }
     }
@@ -80,9 +96,17 @@ public class ChatController implements Initializable {
         }
     }
 
-    public void addSentMessage(String message) { addMessage(message, true); }
-    public void addReceivedMessage(String message) { addMessage(message, false); }
-    public void addSentFile(String fileName) { addFileMessage(fileName, true); }
+    public void addSentMessage(String message) {
+        addMessage(message, true);
+    }
+
+    public void addReceivedMessage(String message) {
+        addMessage(message, false);
+    }
+
+    public void addSentFile(String fileName) {
+        addFileMessage(fileName, true);
+    }
 
     public void addReceivedFile(String fileName, byte[] fileData) {
         Platform.runLater(() -> {

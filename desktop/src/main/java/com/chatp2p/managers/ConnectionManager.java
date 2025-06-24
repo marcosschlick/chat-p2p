@@ -94,11 +94,15 @@ public class ConnectionManager {
     public void connectToPeer(String username, String ip, int port) {
         executorService.submit(() -> {
             try {
-                Socket socket = new Socket(ip, port);
-                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                Socket socket = new Socket();
+                // Timeout de conexão de 5 segundos
+                socket.connect(new InetSocketAddress(ip, port), 5000);
 
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
                 oos.writeObject(new Message(
-                        App.getCurrentUser(), username, "Solicitação de conexão", Message.MessageType.CONNECTION_REQUEST
+                        App.getCurrentUser(), username,
+                        "Solicitação de conexão",
+                        Message.MessageType.CONNECTION_REQUEST
                 ));
 
                 activeConnections.put(username, socket);
@@ -106,11 +110,19 @@ public class ConnectionManager {
 
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
                 startMessageListener(username, ois);
+
+                // Notifica UI que a conexão foi estabelecida
+                Platform.runLater(() -> {
+                    if (ChatController.getInstance() != null) {
+                        ChatController.getInstance().onConnectionEstablished(username);
+                    }
+                });
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     if (ChatController.getInstance() != null) {
                         ChatController.getInstance().showAlert(
-                                "Erro de Conexão", "Não foi possível conectar a " + username
+                                "Erro de Conexão",
+                                "Não foi possível conectar a " + username + ": " + e.getMessage()
                         );
                     }
                 });
@@ -175,4 +187,6 @@ public class ConnectionManager {
             e.printStackTrace();
         }
     }
+
+
 }

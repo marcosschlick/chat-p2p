@@ -21,19 +21,16 @@ import java.util.Timer;
 
 public class OnlineUsersController implements Initializable {
 
-    @FXML private VBox usersContainer;
-    @FXML private Button connectButton;
-    @FXML private Label messageLabel;
-
+    @FXML
+    private VBox usersContainer;
+    @FXML
+    private Button connectButton;
+    @FXML
+    private Label messageLabel;
     private String selectedUser;
     private Timer refreshTimer;
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    // Mock user para testes
-    private static final Map<String, String> MOCK_USER = Map.of(
-            "username", "mock_user",
-            "profileImageUrl", ""
-    );
+    private final Map<String, String> userIps = new HashMap<>();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -54,10 +51,7 @@ public class OnlineUsersController implements Initializable {
 
     private void refreshOnlineUsers() {
         String token = App.getAuthToken();
-        List<Map<String, String>> users = new ArrayList<>();
-
-        // Sempre adiciona o usuário mockado
-        users.add(MOCK_USER);
+        List<Map<String, String>> users = new ArrayList<>(); // Inicia vazia
 
         if (token == null) {
             showMessage("Token não encontrado", "error");
@@ -72,18 +66,27 @@ public class OnlineUsersController implements Initializable {
                         token
                 );
 
+                System.out.println("Response status: " + response.statusCode()); // Log para debug
+                System.out.println("Response body: " + response.body()); // Log para debug
+
                 if (response.statusCode() == 200) {
-                    List<Map<String, String>> apiUsers = objectMapper.readValue(
+                    // Corrige a desserialização
+                    List<Map<String, Object>> apiUsers = objectMapper.readValue(
                             response.body(),
                             objectMapper.getTypeFactory().constructCollectionType(List.class, Map.class)
                     );
 
-                    // Adiciona usuários reais da API
-                    users.addAll(apiUsers);
+                    // Converte para Map<String, String>
+                    for (Map<String, Object> user : apiUsers) {
+                        Map<String, String> stringMap = new HashMap<>();
+                        user.forEach((key, value) -> stringMap.put(key, value != null ? value.toString() : ""));
+                        users.add(stringMap);
+                    }
                 } else {
-                    showMessage("Falha ao carregar usuários", "error");
+                    showMessage("Falha ao carregar usuários: " + response.statusCode(), "error");
                 }
             } catch (Exception e) {
+                System.err.println("Erro ao processar resposta: " + e.getMessage());
                 showMessage("Falha na conexão: " + e.getMessage(), "error");
             }
 
@@ -96,9 +99,24 @@ public class OnlineUsersController implements Initializable {
 
     private void updateUserList(List<Map<String, String>> users) {
         usersContainer.getChildren().clear();
+        userIps.clear();
+
+        // DEBUG: Verifique antes de renderizar
+        System.out.println("Usuários para renderizar: " + users.size());
+
         for (Map<String, String> user : users) {
             String username = user.get("username");
+            String ip = user.get("ip");
+
+            // Verifique se os campos existem
+            if (username == null) {
+                System.err.println("Usuário sem username: " + user);
+                continue;
+            }
+
+            // Filtra usuário atual
             if (!username.equals(App.getCurrentUser())) {
+                userIps.put(username, ip != null ? ip : "127.0.0.1");
                 addUserButton(username, user.get("profileImageUrl"));
             }
         }
@@ -160,11 +178,20 @@ public class OnlineUsersController implements Initializable {
         }
 
         if (selectedUser != null) {
-            try {
-                ChatController.setSelectedUser(selectedUser);
-                App.setRoot("ChatView");
-            } catch (IOException e) {
-                showMessage("Erro ao carregar o chat", "error");
+            String ip = userIps.get(selectedUser); // Obtém IP do usuário selecionado
+
+            if (ip != null) {
+                // Conecta usando IP e porta fixa
+                App.connectToPeer(selectedUser, ip, 55555); // 55555 é a porta padrão
+
+                try {
+                    ChatController.setSelectedUser(selectedUser);
+                    App.setRoot("ChatView");
+                } catch (IOException e) {
+                    showMessage("Erro ao carregar o chat", "error");
+                }
+            } else {
+                showMessage("IP do usuário não disponível", "error");
             }
         } else {
             showMessage("Selecione um usuário para conectar", "error");
