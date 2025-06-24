@@ -27,7 +27,10 @@ public class UserService {
         if (userRepository.existsByUsername(dto.getUsername())) {
             throw new AuthException("Username already exists");
         }
-        User user = new User(dto.getUsername(), passwordEncoder.encode(dto.getPassword()), dto.getProfileImageUrl());
+        String defaultImage = "/com/chatp2p/images/default_user.png";
+        User user = new User(dto.getUsername(),
+                passwordEncoder.encode(dto.getPassword()),
+                defaultImage);
         userRepository.save(user);
     }
 
@@ -73,7 +76,8 @@ public class UserService {
         }
 
         if (updateUserDTO.getProfileImageUrl() != null) {
-            user.setProfileImageUrl(updateUserDTO.getProfileImageUrl());
+            String imagePath = "/com/chatp2p/images/" + updateUserDTO.getProfileImageUrl();
+            user.setProfileImageUrl(imagePath);
         }
 
         userRepository.save(user);
