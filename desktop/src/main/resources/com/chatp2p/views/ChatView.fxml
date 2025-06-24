@@ -24,7 +24,6 @@
                 <Image url="@../icons/user.png"/>
             </ImageView>
             <Label fx:id="userLabel" styleClass="user-name-label" text="User_1"/>
-            <Label fx:id="connectionStatus" styleClass="connection-status" text="Não conectado"/>
         </HBox>
     </top>
     <center>

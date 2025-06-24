@@ -48,19 +48,12 @@ public class ConnectionManager {
                 activeConnections.put(sender, socket);
                 outputStreams.put(sender, new ObjectOutputStream(socket.getOutputStream()));
 
-                // Notificar o receptor que o remetente entrou
+                // Apenas notificar o receptor
                 Platform.runLater(() -> {
                     if (ChatController.getInstance() != null) {
                         ChatController.getInstance().addSystemMessage(sender + " entrou no chat");
                     }
                 });
-
-                // Enviar confirmação para o remetente
-                sendMessage(sender, new Message(
-                        App.getCurrentUser(), sender,
-                        "Você entrou no chat com " + App.getCurrentUser(),
-                        Message.MessageType.CONNECTION_ACCEPTED
-                ));
 
                 startMessageListener(sender, ois);
             }
@@ -124,7 +117,7 @@ public class ConnectionManager {
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
                 startMessageListener(username, ois);
 
-                // Notificar apenas o iniciador
+                // Apenas notificar o iniciador
                 Platform.runLater(() -> {
                     if (ChatController.getInstance() != null) {
                         ChatController.getInstance().addSystemMessage("Você entrou no chat com " + username);

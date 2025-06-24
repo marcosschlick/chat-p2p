@@ -41,8 +41,6 @@ public class ChatController implements Initializable {
     private ScrollPane messagesScrollPane;
     @FXML
     private TextField messageField;
-    @FXML
-    private Label connectionStatus;
 
     public static ChatController getInstance() {
         return instance;
@@ -64,15 +62,6 @@ public class ChatController implements Initializable {
         messageField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) handleSendMessage();
         });
-        connectionStatus.setText("Não conectado");
-        connectionStatus.setStyle("-fx-text-fill: #d32f2f;");
-    }
-
-    public void onConnectionEstablished(String sender) {
-        if (sender.equals(selectedUser)) {
-            connectionStatus.setText("Conectado");
-            connectionStatus.setStyle("-fx-text-fill: #388e3c;");
-        }
     }
 
     public boolean isChattingWith(String username) {
