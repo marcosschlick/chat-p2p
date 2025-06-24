@@ -17,6 +17,7 @@ public class App extends Application {
     private static Stage primaryStage;
     private static ConnectionManager connectionManager;
     private static boolean isShutdown = false;
+    private static String profileImageUrl;
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -69,6 +70,14 @@ public class App extends Application {
 
         Platform.exit();
         System.exit(0);
+    }
+
+    public static void setProfileImageUrl(String url) {
+        profileImageUrl = url;
+    }
+
+    public static String getProfileImageUrl() {
+        return profileImageUrl;
     }
 
     public static void setRoot(String fxml) throws IOException {

@@ -25,6 +25,8 @@ public class OnlineUsersController implements Initializable {
     private Button connectButton;
     @FXML
     private Label messageLabel;
+    @FXML
+    private Button profileButton;
     private String selectedUser;
     private Timer refreshTimer;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -33,6 +35,7 @@ public class OnlineUsersController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         connectButton.setDisable(true);
+        profileButton.setOnAction(e -> handleProfile());
         startAutoRefresh();
     }
 
@@ -59,16 +62,10 @@ public class OnlineUsersController implements Initializable {
 
         new Thread(() -> {
             try {
-                HttpResponse<String> response = HttpManager.getWithToken(
-                        "http://localhost:8080/api/users/online",
-                        token
-                );
+                HttpResponse<String> response = HttpManager.getWithToken("http://localhost:8080/api/users/online", token);
 
                 if (response.statusCode() == 200) {
-                    List<Map<String, Object>> apiUsers = objectMapper.readValue(
-                            response.body(),
-                            objectMapper.getTypeFactory().constructCollectionType(List.class, Map.class)
-                    );
+                    List<Map<String, Object>> apiUsers = objectMapper.readValue(response.body(), objectMapper.getTypeFactory().constructCollectionType(List.class, Map.class));
 
                     for (Map<String, Object> user : apiUsers) {
                         Map<String, String> stringMap = new HashMap<>();
@@ -94,10 +91,10 @@ public class OnlineUsersController implements Initializable {
         usersContainer.getChildren().clear();
         userIps.clear();
 
-
         for (Map<String, String> user : users) {
             String username = user.get("username");
             String ip = user.get("ip");
+            String profileImageUrl = user.get("profileImageUrl");
 
             if (username == null) {
                 continue;
@@ -105,7 +102,8 @@ public class OnlineUsersController implements Initializable {
 
             if (!username.equals(App.getCurrentUser())) {
                 userIps.put(username, ip != null ? ip : "127.0.0.1");
-                addUserButton(username, user.get("profileImageUrl"));
+                // Passar a URL da imagem para o botão
+                addUserButton(username, profileImageUrl);
             }
         }
     }
@@ -171,5 +169,18 @@ public class OnlineUsersController implements Initializable {
             messageLabel.setText(message);
             messageLabel.getStyleClass().add(type + "-message");
         });
+    }
+
+    @FXML
+    private void handleProfile() {
+        if (refreshTimer != null) {
+            refreshTimer.cancel();
+        }
+
+        try {
+            App.setRoot("ProfileView");
+        } catch (Exception e) {
+            showMessage("Erro ao abrir perfil: " + e.getMessage(), "error");
+        }
     }
 }

@@ -237,3 +237,67 @@
 .icon-button:hover {
     -fx-background-color: #6a3de8;
 }
+
+/* ===== TELA DE PERFIL ===== */
+.profile-container {
+    -fx-background-color: #2d2d2d;
+    -fx-alignment: center;
+}
+
+.profile-image-button {
+    -fx-background-color: #444444;
+    -fx-background-radius: 10z;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+    -fx-min-width: 160;
+    -fx-min-height: 160;
+    -fx-max-width: 160;
+    -fx-max-height: 160;
+    -fx-border-color: #7c4dff;
+    -fx-border-radius: 90;
+    -fx-border-width: 2;
+}
+
+.profile-image-button:hover {
+    -fx-background-color: #555555;
+}
+
+.field-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #cccccc;
+    -fx-padding: 0 0 5 0;
+}
+
+.profile-container .login-field {
+    -fx-min-width: 350;
+    -fx-max-width: 350;
+}
+
+/* Adicionar borda circular à imagem */
+.profile-image-button .image-view {
+    -fx-border-radius: 90;
+    -fx-border-width: 2;
+    -fx-border-color: #7c4dff;
+}
+
+/* ===== BOTÃO DE PERFIL ===== */
+.profile-icon-button {
+    -fx-background-color: #7c4dff;
+    -fx-background-radius: 10; /* 56/2 para círculo perfeito */
+    -fx-min-width: 56;
+    -fx-min-height: 56;
+    -fx-max-width: 56;
+    -fx-max-height: 56;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+}
+
+.profile-icon-button:hover {
+    -fx-background-color: #6a3de8;
+}
+
+.profile-icon-button:pressed {
+    -fx-background-color: #5e35d1;
+}

@@ -65,6 +65,12 @@ public class LoginController {
                     JsonNode json = objectMapper.readTree(response.body());
                     App.setAuthToken(json.get("token").asText());
                     App.setCurrentUser(username);
+
+                    // Armazenar URL da imagem de perfil
+                    if (json.has("profileImageUrl")) {
+                        App.setProfileImageUrl(json.get("profileImageUrl").asText());
+                    }
+
                     Platform.runLater(() -> {
                         try {
                             App.setRoot("OnlineUsers");
