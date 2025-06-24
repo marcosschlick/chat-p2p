@@ -7,16 +7,12 @@ import com.chatp2p.core.App;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -24,8 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
 public class ChatController implements Initializable {
@@ -82,7 +76,7 @@ public class ChatController implements Initializable {
         File file = new FileChooser().showOpenDialog(new Stage());
         if (file != null) {
             App.sendFile(selectedUser, file);
-            addSentFile(file.getName());
+
         }
     }
 
@@ -124,7 +118,6 @@ public class ChatController implements Initializable {
 
     @FXML
     private void handleBack() {
-        // Notificar que o usuário saiu do chat
         App.notifyUserLeft(selectedUser);
 
         try {

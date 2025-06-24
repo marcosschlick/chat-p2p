@@ -4,7 +4,6 @@ import com.chatp2p.core.App;
 import com.chatp2p.controllers.ChatController;
 import com.chatp2p.models.Message;
 import javafx.application.Platform;
-
 import java.io.*;
 import java.net.*;
 import java.nio.file.*;
@@ -73,7 +72,6 @@ public class ConnectionManager {
                     });
                 }
             } catch (SocketException | EOFException e) {
-                // Conexão fechada normalmente
             } catch (Exception e) {
                 System.err.println("Erro na conexão com " + sender + ": " + e.getMessage());
             } finally {
@@ -177,8 +175,6 @@ public class ConnectionManager {
     }
 
     public void shutdown() {
-        notifyAppClosing();
-
         if (serverManager != null) {
             serverManager.shutdown();
         }
@@ -221,7 +217,7 @@ public class ConnectionManager {
                     Message msg = new Message(
                             App.getCurrentUser(),
                             user,
-                            App.getCurrentUser() + " fechou o aplicativo chat-p2p",
+                            App.getCurrentUser() + " fechou o chat-p2p",
                             Message.MessageType.SYSTEM
                     );
                     outputStreams.get(user).writeObject(msg);

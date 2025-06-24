@@ -58,18 +58,15 @@ public class App extends Application {
         if (isShutdown) return;
         isShutdown = true;
 
-        // 1. Logout síncrono primeiro
         if (AuthManager.getAuthToken() != null) {
             AuthManager.logoutSynchronous();
         }
 
-        // 2. Notificar outros usuários
         if (connectionManager != null) {
             connectionManager.notifyAppClosing();
             connectionManager.shutdown();
         }
 
-        // 3. Encerrar aplicação
         Platform.exit();
         System.exit(0);
     }
