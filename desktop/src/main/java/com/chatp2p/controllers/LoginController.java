@@ -1,6 +1,7 @@
 package com.chatp2p.controllers;
 
 import com.chatp2p.core.App;
+import com.chatp2p.utils.NetworkUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
@@ -28,12 +29,7 @@ public class LoginController {
     private Label messageLabel;
 
     private String getLocalIP() {
-        try (DatagramSocket socket = new DatagramSocket()) {
-            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-            return socket.getLocalAddress().getHostAddress();
-        } catch (Exception e) {
-            return "127.0.0.1";
-        }
+        return NetworkUtils.getLocalIP();
     }
 
     @FXML
