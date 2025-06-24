@@ -208,12 +208,13 @@ public class ConnectionManager {
     }
 
     public void shutdown() {
-        try {
-            // Primeiro notifique sobre o fechamento
-            notifyAppClosing();
+        notifyAppClosing();
 
-            // Depois feche as conexões
-            if (serverSocket != null) serverSocket.close();
+        try {
+            if (serverSocket != null) {
+                serverSocket.close();
+            }
+
             for (Socket socket : activeConnections.values()) {
                 try {
                     socket.close();
@@ -221,8 +222,14 @@ public class ConnectionManager {
                     System.err.println("Erro ao fechar socket: " + e.getMessage());
                 }
             }
-            if (executorService != null) executorService.shutdownNow();
-        } catch (IOException e) {
+
+            if (executorService != null) {
+                executorService.shutdownNow();
+                if (!executorService.awaitTermination(2, TimeUnit.SECONDS)) {
+                    System.err.println("ExecutorService não terminou a tempo");
+                }
+            }
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
