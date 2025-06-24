@@ -3,6 +3,7 @@ package com.chatp2p.core;
 import com.chatp2p.managers.ConnectionManager;
 import com.chatp2p.managers.HttpManager;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -58,10 +59,34 @@ public class App extends Application {
         return connectionManager.getServerPort();
     }
 
-    private void shutdown() {
-        if (authToken != null) logoutOnExit();
-        connectionManager.shutdown();
+    public static void notifyUserLeft(String username) {
+        connectionManager.notifyUserLeft(username);
     }
+
+    private void shutdown() {
+        if (isShutdown) return;
+        isShutdown = true;
+
+        // Primeiro: notificar sobre o fechamento
+        if (connectionManager != null) {
+            connectionManager.notifyAppClosing();
+        }
+
+        // Segundo: logout e limpeza
+        if (authToken != null) {
+            logoutOnExit();
+        }
+
+        // Terceiro: encerrar conexões
+        if (connectionManager != null) {
+            connectionManager.shutdown();
+        }
+
+        Platform.exit();
+        System.exit(0);
+    }
+
+    private static boolean isShutdown = false;
 
     public static void setRoot(String fxml) throws IOException {
         scene.setRoot(loadFXML(fxml));

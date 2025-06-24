@@ -1,5 +1,6 @@
 package com.chatp2p.controllers;
 
+import com.chatp2p.components.UserButton;
 import com.chatp2p.core.App;
 import com.chatp2p.managers.HttpManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,11 +9,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
-import javafx.geometry.Pos;
-
 import java.io.IOException;
 import java.net.URL;
 import java.net.http.HttpResponse;
@@ -51,7 +48,7 @@ public class OnlineUsersController implements Initializable {
 
     private void refreshOnlineUsers() {
         String token = App.getAuthToken();
-        List<Map<String, String>> users = new ArrayList<>(); // Inicia vazia
+        List<Map<String, String>> users = new ArrayList<>();
 
         if (token == null) {
             showMessage("Token não encontrado", "error");
@@ -66,17 +63,12 @@ public class OnlineUsersController implements Initializable {
                         token
                 );
 
-                System.out.println("Response status: " + response.statusCode()); // Log para debug
-                System.out.println("Response body: " + response.body()); // Log para debug
-
                 if (response.statusCode() == 200) {
-                    // Corrige a desserialização
                     List<Map<String, Object>> apiUsers = objectMapper.readValue(
                             response.body(),
                             objectMapper.getTypeFactory().constructCollectionType(List.class, Map.class)
                     );
 
-                    // Converte para Map<String, String>
                     for (Map<String, Object> user : apiUsers) {
                         Map<String, String> stringMap = new HashMap<>();
                         user.forEach((key, value) -> stringMap.put(key, value != null ? value.toString() : ""));
@@ -101,20 +93,15 @@ public class OnlineUsersController implements Initializable {
         usersContainer.getChildren().clear();
         userIps.clear();
 
-        // DEBUG: Verifique antes de renderizar
-        System.out.println("Usuários para renderizar: " + users.size());
 
         for (Map<String, String> user : users) {
             String username = user.get("username");
             String ip = user.get("ip");
 
-            // Verifique se os campos existem
             if (username == null) {
-                System.err.println("Usuário sem username: " + user);
                 continue;
             }
 
-            // Filtra usuário atual
             if (!username.equals(App.getCurrentUser())) {
                 userIps.put(username, ip != null ? ip : "127.0.0.1");
                 addUserButton(username, user.get("profileImageUrl"));
@@ -123,31 +110,7 @@ public class OnlineUsersController implements Initializable {
     }
 
     private void addUserButton(String username, String profileImageUrl) {
-        VBox userContainer = new VBox(5);
-        userContainer.setAlignment(Pos.CENTER);
-
-        ImageView userImage = new ImageView();
-        userImage.setFitWidth(60);
-        userImage.setFitHeight(60);
-        userImage.setPreserveRatio(true);
-
-        try {
-            if (profileImageUrl == null || profileImageUrl.isEmpty()) {
-                profileImageUrl = App.class.getResource("/com/chatp2p/images/default_user.jpg").toString();
-            }
-            userImage.setImage(new Image(profileImageUrl, true));
-        } catch (Exception e) {
-            userImage.setImage(new Image(App.class.getResource("/com/chatp2p/images/default_user.jpg").toString()));
-        }
-
-        Label userNameLabel = new Label(username);
-        userNameLabel.setStyle("-fx-text-fill: white; -fx-font-size: 12px;");
-        userContainer.getChildren().addAll(userImage, userNameLabel);
-
-        Button userButton = new Button();
-        userButton.setGraphic(userContainer);
-        userButton.getStyleClass().add("user-button");
-        userButton.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        UserButton userButton = new UserButton(username, profileImageUrl);
 
         userButton.setOnAction(e -> {
             selectUser(username);
@@ -160,7 +123,7 @@ public class OnlineUsersController implements Initializable {
 
     private void clearSelections() {
         usersContainer.getChildren().forEach(node -> {
-            if (node instanceof Button) {
+            if (node instanceof UserButton) {
                 node.getStyleClass().remove("selected");
             }
         });
@@ -178,11 +141,10 @@ public class OnlineUsersController implements Initializable {
         }
 
         if (selectedUser != null) {
-            String ip = userIps.get(selectedUser); // Obtém IP do usuário selecionado
+            String ip = userIps.get(selectedUser);
 
             if (ip != null) {
-                // Conecta usando IP e porta fixa
-                App.connectToPeer(selectedUser, ip, 55555); // 55555 é a porta padrão
+                App.connectToPeer(selectedUser, ip, 55555);
 
                 try {
                     ChatController.setSelectedUser(selectedUser);

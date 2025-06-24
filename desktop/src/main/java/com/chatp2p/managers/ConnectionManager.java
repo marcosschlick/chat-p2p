@@ -20,7 +20,7 @@ public class ConnectionManager {
     public void startP2PServer() {
         executorService = Executors.newCachedThreadPool();
         try {
-            serverSocket = new ServerSocket(0);
+            serverSocket = new ServerSocket(55555);
             System.out.println("Servidor P2P na porta: " + serverSocket.getLocalPort());
 
             executorService.submit(() -> {
@@ -48,15 +48,12 @@ public class ConnectionManager {
                 activeConnections.put(sender, socket);
                 outputStreams.put(sender, new ObjectOutputStream(socket.getOutputStream()));
 
-                if (ChatController.getInstance() != null) {
-                    Platform.runLater(() ->
-                            ChatController.getInstance().onConnectionEstablished(sender)
-                    );
-                }
-
-                sendMessage(sender, new Message(
-                        App.getCurrentUser(), sender, "Conexão estabelecida", Message.MessageType.CONNECTION_ACCEPTED
-                ));
+                // Apenas notificar o receptor
+                Platform.runLater(() -> {
+                    if (ChatController.getInstance() != null) {
+                        ChatController.getInstance().addSystemMessage(sender + " entrou no chat");
+                    }
+                });
 
                 startMessageListener(sender, ois);
             }
@@ -68,8 +65,9 @@ public class ConnectionManager {
     private void startMessageListener(String sender, ObjectInputStream ois) {
         executorService.submit(() -> {
             try {
-                while (true) {
+                while (!Thread.currentThread().isInterrupted()) {
                     Message message = (Message) ois.readObject();
+
                     Platform.runLater(() -> {
                         if (ChatController.getInstance() != null &&
                                 ChatController.getInstance().isChattingWith(sender)) {
@@ -80,11 +78,25 @@ public class ConnectionManager {
                                 );
                             } else if (message.getType() == Message.MessageType.TEXT) {
                                 ChatController.getInstance().addReceivedMessage(message.getContent());
+                            } else if (message.getType() == Message.MessageType.SYSTEM) {
+                                ChatController.getInstance().addSystemMessage(message.getContent());
                             }
                         }
                     });
                 }
+            } catch (SocketException | EOFException e) {
+                // Conexão fechada normalmente
             } catch (Exception e) {
+                System.err.println("Erro na conexão com " + sender + ": " + e.getMessage());
+            } finally {
+                try {
+                    if (activeConnections.containsKey(sender)) {
+                        activeConnections.get(sender).close();
+                    }
+                } catch (IOException ex) {
+                    System.err.println("Erro ao fechar socket: " + ex.getMessage());
+                }
+
                 activeConnections.remove(sender);
                 outputStreams.remove(sender);
             }
@@ -95,7 +107,6 @@ public class ConnectionManager {
         executorService.submit(() -> {
             try {
                 Socket socket = new Socket();
-                // Timeout de conexão de 5 segundos
                 socket.connect(new InetSocketAddress(ip, port), 5000);
 
                 ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
@@ -111,10 +122,10 @@ public class ConnectionManager {
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
                 startMessageListener(username, ois);
 
-                // Notifica UI que a conexão foi estabelecida
+                // Apenas notificar o iniciador
                 Platform.runLater(() -> {
                     if (ChatController.getInstance() != null) {
-                        ChatController.getInstance().onConnectionEstablished(username);
+                        ChatController.getInstance().addSystemMessage("Você entrou no chat com " + username);
                     }
                 });
             } catch (Exception e) {
@@ -179,14 +190,61 @@ public class ConnectionManager {
     }
 
     public void shutdown() {
+        notifyAppClosing();
+
         try {
-            if (serverSocket != null) serverSocket.close();
-            for (Socket socket : activeConnections.values()) socket.close();
-            if (executorService != null) executorService.shutdownNow();
-        } catch (IOException e) {
+            if (serverSocket != null) {
+                serverSocket.close();
+            }
+
+            for (Socket socket : activeConnections.values()) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    System.err.println("Erro ao fechar socket: " + e.getMessage());
+                }
+            }
+
+            if (executorService != null) {
+                executorService.shutdownNow();
+                if (!executorService.awaitTermination(2, TimeUnit.SECONDS)) {
+                    System.err.println("ExecutorService não terminou a tempo");
+                }
+            }
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
 
+    public void notifyUserLeft(String username) {
+        if (outputStreams.containsKey(username)) {
+            sendMessage(username, new Message(
+                    App.getCurrentUser(),
+                    username,
+                    App.getCurrentUser() + " saiu do chat",
+                    Message.MessageType.SYSTEM
+            ));
+        }
+    }
+
+    public void notifyAppClosing() {
+        for (String user : activeConnections.keySet()) {
+            if (outputStreams.containsKey(user)) {
+                try {
+                    // Envio síncrono para garantir entrega
+                    Message msg = new Message(
+                            App.getCurrentUser(),
+                            user,
+                            App.getCurrentUser() + " fechou o aplicativo chat-p2p",
+                            Message.MessageType.SYSTEM
+                    );
+                    outputStreams.get(user).writeObject(msg);
+                    outputStreams.get(user).flush(); // Forçar envio imediato
+                } catch (IOException e) {
+                    System.err.println("Erro ao notificar fechamento para " + user + ": " + e.getMessage());
+                }
+            }
+        }
+    }
 
 }

@@ -4,7 +4,10 @@ import java.io.Serializable;
 
 public class Message implements Serializable {
     public enum MessageType {
-        TEXT, FILE, CONNECTION_REQUEST, CONNECTION_ACCEPTED
+        TEXT,
+        FILE,
+        CONNECTION_REQUEST,
+        SYSTEM // Novo tipo para mensagens de sistema
     }
 
     private String sender;
