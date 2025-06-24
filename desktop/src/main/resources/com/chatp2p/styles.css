@@ -24,7 +24,7 @@
 
 .login-field {
     -fx-background-color: #f0f0f0;
-    -fx-background-radius: 5;
+    -fx-background-radius: 15;
     -fx-padding: 12;
     -fx-font-size: 14px;
     -fx-min-width: 300;
@@ -34,6 +34,7 @@
 .login-field:focused {
     -fx-background-color: white;
     -fx-border-color: #7c4dff;
+    -fx-border-radius: 10;
     -fx-border-width: 2;
 }
 
@@ -166,7 +167,7 @@
 
 .message-input {
     -fx-background-color: #f0f0f0;
-    -fx-background-radius: 25;
+    -fx-background-radius: 15;
     -fx-padding: 12 20 12 20;
     -fx-font-size: 14px;
     -fx-border-color: transparent;
@@ -175,6 +176,7 @@
 .message-input:focused {
     -fx-background-color: white;
     -fx-border-color: #7c4dff;
+    -fx-border-radius: 10;
     -fx-border-width: 2;
 }
 
