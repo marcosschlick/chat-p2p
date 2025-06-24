@@ -124,6 +124,8 @@ public class ChatController implements Initializable {
 
     @FXML
     private void handleBack() {
+        App.notifyUserLeft(selectedUser);
+
         try {
             App.setRoot("OnlineUsers");
         } catch (IOException e) {

@@ -71,14 +71,14 @@ public class ConnectionManager {
                         if (ChatController.getInstance() != null &&
                                 ChatController.getInstance().isChattingWith(sender)) {
 
+                            // Tratar diferentes tipos de mensagens
                             if (message.getType() == Message.MessageType.FILE) {
                                 ChatController.getInstance().addReceivedFile(
                                         message.getFileName(), message.getFileData()
                                 );
                             } else if (message.getType() == Message.MessageType.TEXT) {
                                 ChatController.getInstance().addReceivedMessage(message.getContent());
-                            } else if (message.getType() == Message.MessageType.CONNECTION_ACCEPTED) {
-                                // Tratar como mensagem de sistema
+                            } else if (message.getType() == Message.MessageType.SYSTEM) {
                                 ChatController.getInstance().addSystemMessage(message.getContent());
                             }
                         }
@@ -191,6 +191,23 @@ public class ConnectionManager {
             if (executorService != null) executorService.shutdownNow();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void notifyUserLeft(String username) {
+        if (outputStreams.containsKey(username)) {
+            sendMessage(username, new Message(
+                    App.getCurrentUser(),
+                    username,
+                    App.getCurrentUser() + " saiu do chat",
+                    Message.MessageType.SYSTEM
+            ));
+        }
+    }
+
+    public void notifyAllUsersLeft() {
+        for (String user : activeConnections.keySet()) {
+            notifyUserLeft(user);
         }
     }
 

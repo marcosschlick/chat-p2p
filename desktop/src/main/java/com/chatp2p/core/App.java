@@ -58,8 +58,15 @@ public class App extends Application {
         return connectionManager.getServerPort();
     }
 
+    public static void notifyUserLeft(String username) {
+        connectionManager.notifyUserLeft(username);
+    }
+
     private void shutdown() {
-        if (authToken != null) logoutOnExit();
+        if (authToken != null) {
+            connectionManager.notifyAllUsersLeft();
+            logoutOnExit();
+        }
         connectionManager.shutdown();
     }
 
