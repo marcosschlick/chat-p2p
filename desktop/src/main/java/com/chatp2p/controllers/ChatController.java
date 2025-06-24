@@ -1,5 +1,7 @@
 package com.chatp2p.controllers;
 
+import com.chatp2p.components.FileMessageBubble;
+import com.chatp2p.components.MessageBubble;
 import com.chatp2p.core.App;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -16,6 +18,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -29,13 +32,22 @@ public class ChatController implements Initializable {
     private static ChatController instance;
     private static String selectedUser;
 
-    @FXML private Label userLabel;
-    @FXML private VBox messagesContainer;
-    @FXML private ScrollPane messagesScrollPane;
-    @FXML private TextField messageField;
+    @FXML
+    private Label userLabel;
+    @FXML
+    private VBox messagesContainer;
+    @FXML
+    private ScrollPane messagesScrollPane;
+    @FXML
+    private TextField messageField;
 
-    public static ChatController getInstance() { return instance; }
-    public static void setSelectedUser(String user) { selectedUser = user; }
+    public static ChatController getInstance() {
+        return instance;
+    }
+
+    public static void setSelectedUser(String user) {
+        selectedUser = user;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -80,9 +92,17 @@ public class ChatController implements Initializable {
         }
     }
 
-    public void addSentMessage(String message) { addMessage(message, true); }
-    public void addReceivedMessage(String message) { addMessage(message, false); }
-    public void addSentFile(String fileName) { addFileMessage(fileName, true); }
+    public void addSentMessage(String message) {
+        addMessage(message, true);
+    }
+
+    public void addReceivedMessage(String message) {
+        addMessage(message, false);
+    }
+
+    public void addSentFile(String fileName) {
+        addFileMessage(fileName, true);
+    }
 
     public void addReceivedFile(String fileName, byte[] fileData) {
         Platform.runLater(() -> {
@@ -110,49 +130,13 @@ public class ChatController implements Initializable {
 
     private void addMessage(String message, boolean sent) {
         Platform.runLater(() -> {
-            HBox container = new HBox();
-            container.setPadding(new Insets(5, 10, 5, 10));
-            container.setAlignment(sent ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
-
-            VBox bubble = new VBox(5);
-            bubble.setPadding(new Insets(8, 12, 8, 12));
-            bubble.setStyle("-fx-background-color: " + (sent ? "#DCF8C6" : "#FFFFFF") + "; -fx-background-radius: 12;");
-
-            Label messageLabel = new Label(message);
-            messageLabel.setWrapText(true);
-            messageLabel.setFont(Font.font("Segoe UI", 14));
-            messageLabel.setMaxWidth(300);
-
-            Label timeLabel = new Label(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
-            timeLabel.setStyle("-fx-text-fill: #777777; -fx-font-size: 10px;");
-
-            bubble.getChildren().addAll(messageLabel, timeLabel);
-            container.getChildren().add(bubble);
-            messagesContainer.getChildren().add(container);
+            messagesContainer.getChildren().add(new MessageBubble(message, sent));
         });
     }
 
     private void addFileMessage(String fileName, boolean sent) {
         Platform.runLater(() -> {
-            HBox container = new HBox();
-            container.setPadding(new Insets(5, 10, 5, 10));
-            container.setAlignment(sent ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
-
-            VBox bubble = new VBox(5);
-            bubble.setPadding(new Insets(8, 12, 8, 12));
-            bubble.setStyle("-fx-background-color: " + (sent ? "#DCF8C6" : "#FFFFFF") + "; -fx-background-radius: 12;");
-
-            Label fileLabel = new Label("📎 " + fileName);
-            fileLabel.setWrapText(true);
-            fileLabel.setFont(Font.font("Segoe UI", 14));
-            fileLabel.setMaxWidth(300);
-
-            Label timeLabel = new Label(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
-            timeLabel.setStyle("-fx-text-fill: #777777; -fx-font-size: 10px;");
-
-            bubble.getChildren().addAll(fileLabel, timeLabel);
-            container.getChildren().add(bubble);
-            messagesContainer.getChildren().add(container);
+            messagesContainer.getChildren().add(new FileMessageBubble(fileName, sent));
         });
     }
 
