@@ -48,18 +48,17 @@ public class ConnectionManager {
                 activeConnections.put(sender, socket);
                 outputStreams.put(sender, new ObjectOutputStream(socket.getOutputStream()));
 
-                // Notificar ambos os usuários sobre a conexão estabelecida
-                String connectionMessage = "Conexão estabelecida com " + sender;
+                // Notificar o receptor que o remetente entrou
                 Platform.runLater(() -> {
                     if (ChatController.getInstance() != null) {
-                        ChatController.getInstance().addConnectionMessage(connectionMessage);
+                        ChatController.getInstance().addSystemMessage(sender + " entrou no chat");
                     }
                 });
 
-                // Enviar confirmação de conexão para o remetente
+                // Enviar confirmação para o remetente
                 sendMessage(sender, new Message(
                         App.getCurrentUser(), sender,
-                        "Conexão estabelecida com " + App.getCurrentUser(),
+                        "Você entrou no chat com " + App.getCurrentUser(),
                         Message.MessageType.CONNECTION_ACCEPTED
                 ));
 
@@ -110,7 +109,6 @@ public class ConnectionManager {
         executorService.submit(() -> {
             try {
                 Socket socket = new Socket();
-                // Timeout de conexão de 5 segundos
                 socket.connect(new InetSocketAddress(ip, port), 5000);
 
                 ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
@@ -126,10 +124,10 @@ public class ConnectionManager {
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
                 startMessageListener(username, ois);
 
-                // Notifica UI que a conexão foi estabelecida
+                // Notificar apenas o iniciador
                 Platform.runLater(() -> {
                     if (ChatController.getInstance() != null) {
-                        ChatController.getInstance().onConnectionEstablished(username);
+                        ChatController.getInstance().addSystemMessage("Você entrou no chat com " + username);
                     }
                 });
             } catch (Exception e) {
