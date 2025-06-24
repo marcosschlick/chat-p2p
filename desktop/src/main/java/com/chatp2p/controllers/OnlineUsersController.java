@@ -1,5 +1,6 @@
 package com.chatp2p.controllers;
 
+import com.chatp2p.components.UserButton;
 import com.chatp2p.core.App;
 import com.chatp2p.managers.HttpManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,9 +22,12 @@ import java.util.Timer;
 
 public class OnlineUsersController implements Initializable {
 
-    @FXML private VBox usersContainer;
-    @FXML private Button connectButton;
-    @FXML private Label messageLabel;
+    @FXML
+    private VBox usersContainer;
+    @FXML
+    private Button connectButton;
+    @FXML
+    private Label messageLabel;
 
     private String selectedUser;
     private Timer refreshTimer;
@@ -105,31 +109,7 @@ public class OnlineUsersController implements Initializable {
     }
 
     private void addUserButton(String username, String profileImageUrl) {
-        VBox userContainer = new VBox(5);
-        userContainer.setAlignment(Pos.CENTER);
-
-        ImageView userImage = new ImageView();
-        userImage.setFitWidth(60);
-        userImage.setFitHeight(60);
-        userImage.setPreserveRatio(true);
-
-        try {
-            if (profileImageUrl == null || profileImageUrl.isEmpty()) {
-                profileImageUrl = App.class.getResource("/com/chatp2p/images/default_user.jpg").toString();
-            }
-            userImage.setImage(new Image(profileImageUrl, true));
-        } catch (Exception e) {
-            userImage.setImage(new Image(App.class.getResource("/com/chatp2p/images/default_user.jpg").toString()));
-        }
-
-        Label userNameLabel = new Label(username);
-        userNameLabel.setStyle("-fx-text-fill: white; -fx-font-size: 12px;");
-        userContainer.getChildren().addAll(userImage, userNameLabel);
-
-        Button userButton = new Button();
-        userButton.setGraphic(userContainer);
-        userButton.getStyleClass().add("user-button");
-        userButton.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        UserButton userButton = new UserButton(username, profileImageUrl);
 
         userButton.setOnAction(e -> {
             selectUser(username);
@@ -142,7 +122,7 @@ public class OnlineUsersController implements Initializable {
 
     private void clearSelections() {
         usersContainer.getChildren().forEach(node -> {
-            if (node instanceof Button) {
+            if (node instanceof UserButton) {
                 node.getStyleClass().remove("selected");
             }
         });
