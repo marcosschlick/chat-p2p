@@ -1,7 +1,7 @@
 package com.chatp2p.core;
 
+import com.chatp2p.managers.AuthManager;
 import com.chatp2p.managers.ConnectionManager;
-import com.chatp2p.managers.HttpManager;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -9,23 +9,14 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 
 public class App extends Application {
-
     private static Scene scene;
     private static Stage primaryStage;
-    private static String authToken;
-    private static String currentUser;
     private static ConnectionManager connectionManager;
-
-    public static void setCurrentUser(String user) {
-        currentUser = user;
-    }
-
-    public static String getCurrentUser() {
-        return currentUser;
-    }
+    private static boolean isShutdown = false;
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -67,26 +58,21 @@ public class App extends Application {
         if (isShutdown) return;
         isShutdown = true;
 
-        // Primeiro: notificar sobre o fechamento
+        // 1. Logout síncrono primeiro
+        if (AuthManager.getAuthToken() != null) {
+            AuthManager.logoutSynchronous();
+        }
+
+        // 2. Notificar outros usuários
         if (connectionManager != null) {
             connectionManager.notifyAppClosing();
-        }
-
-        // Segundo: logout e limpeza
-        if (authToken != null) {
-            logoutOnExit();
-        }
-
-        // Terceiro: encerrar conexões
-        if (connectionManager != null) {
             connectionManager.shutdown();
         }
 
+        // 3. Encerrar aplicação
         Platform.exit();
         System.exit(0);
     }
-
-    private static boolean isShutdown = false;
 
     public static void setRoot(String fxml) throws IOException {
         scene.setRoot(loadFXML(fxml));
@@ -101,25 +87,19 @@ public class App extends Application {
     }
 
     public static void setAuthToken(String token) {
-        authToken = token;
+        AuthManager.setAuthToken(token);
     }
 
     public static String getAuthToken() {
-        return authToken;
+        return AuthManager.getAuthToken();
     }
 
-    private static void logoutOnExit() {
-        new Thread(() -> {
-            try {
-                HttpManager.postWithToken(
-                        "http://localhost:8080/api/auth/logout",
-                        authToken,
-                        ""
-                );
-            } catch (Exception e) {
-                System.err.println("Erro no logout automático: " + e.getMessage());
-            }
-        }).start();
+    public static void setCurrentUser(String user) {
+        AuthManager.setCurrentUser(user);
+    }
+
+    public static String getCurrentUser() {
+        return AuthManager.getCurrentUser();
     }
 
     public static void main(String[] args) {

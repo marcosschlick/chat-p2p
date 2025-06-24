@@ -1,8 +1,8 @@
 package com.chatp2p.managers;
 
 import com.chatp2p.core.App;
-import com.chatp2p.models.Message;
 import com.chatp2p.controllers.ChatController;
+import com.chatp2p.models.Message;
 import javafx.application.Platform;
 
 import java.io.*;
@@ -12,33 +12,22 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 public class ConnectionManager {
-    private ServerSocket serverSocket;
+    private ServerManager serverManager;
     private ExecutorService executorService;
     public final Map<String, Socket> activeConnections = new ConcurrentHashMap<>();
     public final Map<String, ObjectOutputStream> outputStreams = new ConcurrentHashMap<>();
 
     public void startP2PServer() {
-        executorService = Executors.newCachedThreadPool();
         try {
-            serverSocket = new ServerSocket(55555);
-            System.out.println("Servidor P2P na porta: " + serverSocket.getLocalPort());
-
-            executorService.submit(() -> {
-                while (!serverSocket.isClosed()) {
-                    try {
-                        Socket clientSocket = serverSocket.accept();
-                        executorService.submit(() -> handleIncomingConnection(clientSocket));
-                    } catch (IOException e) {
-                        if (!serverSocket.isClosed()) e.printStackTrace();
-                    }
-                }
-            });
+            serverManager = new ServerManager(this);
+            serverManager.startP2PServer(55555);
+            executorService = Executors.newCachedThreadPool();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void handleIncomingConnection(Socket socket) {
+    public void handleIncomingConnection(Socket socket) {
         try {
             ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
             Message message = (Message) ois.readObject();
@@ -48,7 +37,6 @@ public class ConnectionManager {
                 activeConnections.put(sender, socket);
                 outputStreams.put(sender, new ObjectOutputStream(socket.getOutputStream()));
 
-                // Apenas notificar o receptor
                 Platform.runLater(() -> {
                     if (ChatController.getInstance() != null) {
                         ChatController.getInstance().addSystemMessage(sender + " entrou no chat");
@@ -122,7 +110,6 @@ public class ConnectionManager {
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
                 startMessageListener(username, ois);
 
-                // Apenas notificar o iniciador
                 Platform.runLater(() -> {
                     if (ChatController.getInstance() != null) {
                         ChatController.getInstance().addSystemMessage("Você entrou no chat com " + username);
@@ -186,33 +173,33 @@ public class ConnectionManager {
     }
 
     public int getServerPort() {
-        return serverSocket != null ? serverSocket.getLocalPort() : -1;
+        return serverManager != null ? serverManager.getServerPort() : -1;
     }
 
     public void shutdown() {
         notifyAppClosing();
 
-        try {
-            if (serverSocket != null) {
-                serverSocket.close();
-            }
+        if (serverManager != null) {
+            serverManager.shutdown();
+        }
 
-            for (Socket socket : activeConnections.values()) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    System.err.println("Erro ao fechar socket: " + e.getMessage());
-                }
+        for (Socket socket : activeConnections.values()) {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                System.err.println("Erro ao fechar socket: " + e.getMessage());
             }
+        }
 
-            if (executorService != null) {
-                executorService.shutdownNow();
+        if (executorService != null) {
+            executorService.shutdownNow();
+            try {
                 if (!executorService.awaitTermination(2, TimeUnit.SECONDS)) {
                     System.err.println("ExecutorService não terminou a tempo");
                 }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
         }
     }
 
@@ -231,7 +218,6 @@ public class ConnectionManager {
         for (String user : activeConnections.keySet()) {
             if (outputStreams.containsKey(user)) {
                 try {
-                    // Envio síncrono para garantir entrega
                     Message msg = new Message(
                             App.getCurrentUser(),
                             user,
@@ -239,12 +225,11 @@ public class ConnectionManager {
                             Message.MessageType.SYSTEM
                     );
                     outputStreams.get(user).writeObject(msg);
-                    outputStreams.get(user).flush(); // Forçar envio imediato
+                    outputStreams.get(user).flush();
                 } catch (IOException e) {
                     System.err.println("Erro ao notificar fechamento para " + user + ": " + e.getMessage());
                 }
             }
         }
     }
-
 }
