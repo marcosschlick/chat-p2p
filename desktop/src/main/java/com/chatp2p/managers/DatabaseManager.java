@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseManager {
-    private static final String URL = "jdbc:h2:file:./desktop/database/chatp2p-db";
+    private static final String URL = "jdbc:h2:file:./database/chatp2p-db";
     private static final String CREATE_TABLE_SQL = 
         "CREATE TABLE IF NOT EXISTS messages (" +
         "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
