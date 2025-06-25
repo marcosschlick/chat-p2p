@@ -4,21 +4,17 @@ import jakarta.validation.constraints.NotBlank;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public class CreateUserDTO {
-    @Schema(description = "Username for the new user", example = "john_doe")
+    @Schema(description = "Username for the new user", example = "MarcosSchlick")
     @NotBlank(message = "Username is required")
     private String username;
 
-    @Schema(description = "Password for the new user", example = "mypassword123")
+    @Schema(description = "Password for the new user", example = "euodeiojava")
     @NotBlank(message = "Password is required")
     private String password;
 
-    @Schema(description = "Profile image URL (optional)", example = "/com/chatp2p/images/default_user.png")
-    private String profileImageUrl;
-
-    public CreateUserDTO(String username, String password, String profileImageUrl) {
+    public CreateUserDTO(String username, String password) {
         this.username = username;
         this.password = password;
-        this.profileImageUrl = profileImageUrl;
     }
 
     public String getUsername() {
@@ -35,13 +31,5 @@ public class CreateUserDTO {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getProfileImageUrl() {
-        return profileImageUrl;
-    }
-
-    public void setProfileImageUrl(String profileImageUrl) {
-        this.profileImageUrl = profileImageUrl;
     }
 }

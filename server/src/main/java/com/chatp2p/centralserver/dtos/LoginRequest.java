@@ -4,10 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public class LoginRequest {
-    @Schema(description = "Username for login", example = "john_doe")
+    @Schema(description = "Username for login", example = "MarcosSchlick")
     @NotBlank(message = "Username is required")
     private String username;
-    @Schema(description = "Password for login", example = "mypassword123")
+    @Schema(description = "Password for login", example = "euodeiojava")
     @NotBlank(message = "Password is required")
     private String password;
     @Schema(description = "User's IP address", example = "192.168.0.10")

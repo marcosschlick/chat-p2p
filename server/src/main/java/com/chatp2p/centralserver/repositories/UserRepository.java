@@ -24,11 +24,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Modifying
     @Query("UPDATE User u SET u.online = :online, u.lastKnownIp = :ip WHERE u.id = :id")
-    void updateOnlineStatusAndIp(
-            @Param("id") Long id,
-            @Param("online") Boolean online,
-            @Param("ip") String ip
-    );
+    void updateOnlineStatusAndIp(@Param("id") Long id, @Param("online") Boolean online, @Param("ip") String ip);
 
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM User u WHERE u.username = :username AND u.id <> :id")
     boolean existsByUsernameAndIdNot(@Param("username") String username, @Param("id") Long id);

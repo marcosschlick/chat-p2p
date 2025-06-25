@@ -28,16 +28,13 @@ public class UserService {
             throw new AuthException("Username already exists");
         }
         String defaultImage = "/com/chatp2p/images/default_user.png";
-        User user = new User(dto.getUsername(),
-                passwordEncoder.encode(dto.getPassword()),
-                defaultImage);
+        User user = new User(dto.getUsername(), passwordEncoder.encode(dto.getPassword()), defaultImage);
         userRepository.save(user);
     }
 
     @Transactional
     public LoginResponse loginUser(LoginRequest request) throws AuthException {
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new AuthException("User not found"));
+        User user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new AuthException("User not found"));
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new AuthException("Invalid password");
         }
@@ -79,7 +76,6 @@ public class UserService {
     }
 
     public String findProfileImageByUsername(String username) throws AuthException {
-        return userRepository.findProfileImageUrlByUsername(username)
-                .orElseThrow(() -> new AuthException("User not found"));
+        return userRepository.findProfileImageUrlByUsername(username).orElseThrow(() -> new AuthException("User not found"));
     }
 }

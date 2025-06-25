@@ -9,10 +9,10 @@ public class LoginResponse {
     @Schema(description = "User ID", example = "1")
     private Long id;
 
-    @Schema(description = "Username", example = "john_doe")
+    @Schema(description = "Username", example = "WilliamPalhares")
     private String username;
 
-    @Schema(description = "Profile image URL", example = "/com/chatp2p/images/default_user.png")
+    @Schema(description = "Profile image URL", example = "default_user.png")
     private String profileImageUrl;
 
     public LoginResponse() {
