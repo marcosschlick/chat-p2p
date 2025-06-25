@@ -5,6 +5,8 @@ import com.chatp2p.components.MessageBubble;
 import com.chatp2p.components.SystemMessage;
 import com.chatp2p.core.App;
 import com.chatp2p.exceptions.*;
+import com.chatp2p.managers.MessageRepository;
+import com.chatp2p.models.Message;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -21,12 +23,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class ChatController implements Initializable {
 
     private static ChatController instance;
     private static String selectedUser;
+    private MessageRepository messageRepository;
 
     @FXML
     private Label userLabel;
@@ -48,11 +52,15 @@ public class ChatController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         instance = this;
+        messageRepository = new MessageRepository();
+        
         if (selectedUser != null) {
             userLabel.setText(selectedUser);
+            loadMessageHistory();
         } else {
             userLabel.setText("");
         }
+        
         messagesContainer.heightProperty().addListener(new javafx.beans.value.ChangeListener<Number>() {
             @Override
             public void changed(javafx.beans.value.ObservableValue<? extends Number> obs, Number oldVal, Number newVal) {
@@ -67,6 +75,53 @@ public class ChatController implements Initializable {
                 }
             }
         });
+    }
+
+    private void loadMessageHistory() {
+        if (App.getUserProfile() == null || selectedUser == null) {
+            return;
+        }
+
+        try {
+            Long selectedUserId = getUserRemoteId(selectedUser);
+            if (selectedUserId != null) {
+                List<Message> history = messageRepository.findHistory(App.getUserProfile().getId(), selectedUserId);
+                
+                Platform.runLater(() -> {
+                    for (Message msg : history) {
+                        if (msg.getType() == Message.MessageType.TEXT) {
+                            boolean isSent = "Você".equals(msg.getSender());
+                            addMessage(msg.getContent(), isSent);
+                        } else if (msg.getType() == Message.MessageType.FILE) {
+                            boolean isSent = "Você".equals(msg.getSender());
+                            addFileMessage(msg.getFileName(), isSent);
+                        }
+                    }
+                });
+            }
+        } catch (Exception e) {
+            // Ignorar erros de carregamento de histórico
+        }
+    }
+
+    private Long getUserRemoteId(String username) {
+        try {
+            java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                .uri(java.net.URI.create("http://localhost:8080/api/users/by-username/" + username))
+                .GET()
+                .build();
+            
+            java.net.http.HttpResponse<String> response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                com.fasterxml.jackson.databind.JsonNode json = mapper.readTree(response.body());
+                return json.get("id").asLong();
+            }
+        } catch (Exception e) {
+            // Ignorar erros de busca de ID
+        }
+        return null;
     }
 
     public boolean isChattingWith(String username) {

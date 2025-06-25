@@ -14,3 +14,7 @@ HELP.md
 ### Environment Variables ###
 .env
 *.env
+
+### H2 Database ###
+desktop/database/*
+!desktop/database/.gitkeep

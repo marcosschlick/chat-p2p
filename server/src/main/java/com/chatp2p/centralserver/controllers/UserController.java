@@ -42,10 +42,34 @@ public class UserController {
             Map<String, String> userData = new HashMap<>();
             userData.put("username", user.getUsername());
             userData.put("profileImageUrl", user.getProfileImageUrl());
-            userData.put("ip", user.getLastKnownIp()); // Novo campo
+            userData.put("ip", user.getLastKnownIp());
             return userData;
         }).collect(Collectors.toList());
         return ResponseEntity.ok(users);
+    }
+
+    @Operation(summary = "Get user by username", description = "Returns user information including ID for a given username.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "User found"),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    @GetMapping("/by-username/{username}")
+    public ResponseEntity<Map<String, Object>> getUserByUsername(@PathVariable String username) {
+        try {
+            return userRepository.findByUsername(username)
+                .map(user -> {
+                    Map<String, Object> userData = new HashMap<>();
+                    userData.put("id", user.getId());
+                    userData.put("username", user.getUsername());
+                    userData.put("profileImageUrl", user.getProfileImageUrl());
+                    return ResponseEntity.ok(userData);
+                })
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Usuário não encontrado")));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Erro interno do servidor"));
+        }
     }
 
     @Operation(summary = "Update user profile", description = "Updates the authenticated user's profile information (username, password, profile image). Requires JWT token.")

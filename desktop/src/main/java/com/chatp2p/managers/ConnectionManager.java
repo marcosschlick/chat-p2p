@@ -14,6 +14,7 @@ import java.util.concurrent.*;
 public class ConnectionManager {
     private ServerManager serverManager;
     private ExecutorService executorService;
+    private MessageRepository messageRepository;
     public final Map<String, Socket> activeConnections = new ConcurrentHashMap<>();
     public final Map<String, ObjectOutputStream> outputStreams = new ConcurrentHashMap<>();
 
@@ -22,6 +23,7 @@ public class ConnectionManager {
             serverManager = new ServerManager(this);
             serverManager.startP2PServer(55555);
             executorService = Executors.newCachedThreadPool();
+            messageRepository = new MessageRepository();
         } catch (IOException e) {
             throw new NetworkException("Failed to start P2P server", e);
         }
@@ -39,7 +41,7 @@ public class ConnectionManager {
                     @Override
                     public void run() {
                         if (ChatController.getInstance() != null) {
-                            ChatController.getInstance().addSystemMessage(sender + " joined the chat");
+                            ChatController.getInstance().addSystemMessage(sender + " entrou no chat");
                         }
                     }
                 });
@@ -57,6 +59,18 @@ public class ConnectionManager {
                 try {
                     while (!Thread.currentThread().isInterrupted()) {
                         Message message = (Message) ois.readObject();
+                        
+                        if (messageRepository != null && App.getUserProfile() != null) {
+                            try {
+                                Long recipientId = getUserRemoteId(sender);
+                                if (recipientId != null) {
+                                    messageRepository.save(message, recipientId, App.getUserProfile().getId());
+                                }
+                            } catch (Exception e) {
+                                // Ignorar erros de salvamento
+                            }
+                        }
+                        
                         Platform.runLater(new Runnable() {
                             @Override
                             public void run() {
@@ -108,7 +122,7 @@ public class ConnectionManager {
                         @Override
                         public void run() {
                             if (ChatController.getInstance() != null) {
-                                ChatController.getInstance().addSystemMessage("You joined the chat with " + username);
+                                ChatController.getInstance().addSystemMessage("Você entrou no chat com " + username);
                             }
                         }
                     });
@@ -117,7 +131,7 @@ public class ConnectionManager {
                         @Override
                         public void run() {
                             if (ChatController.getInstance() != null) {
-                                ChatController.getInstance().showAlert("Connection Error", "Could not connect to " + username + ": " + e.getMessage());
+                                ChatController.getInstance().showAlert("Erro de Conexão", "Não foi possível conectar com " + username + ": " + e.getMessage());
                             }
                         }
                     });
@@ -138,7 +152,7 @@ public class ConnectionManager {
         } catch (IOException e) {
             Platform.runLater(() -> {
                 if (ChatController.getInstance() != null) {
-                    ChatController.getInstance().showAlert("Error", "Failed to send file");
+                    ChatController.getInstance().showAlert("Erro", "Falha ao enviar arquivo");
                 }
             });
             throw new NetworkException("Failed to send file to " + recipient, e);
@@ -147,6 +161,18 @@ public class ConnectionManager {
 
     public void sendMessage(String recipient, Message message) {
         if (!outputStreams.containsKey(recipient)) return;
+        
+        if (messageRepository != null && App.getUserProfile() != null) {
+            try {
+                Long recipientId = getUserRemoteId(recipient);
+                if (recipientId != null) {
+                    messageRepository.save(message, App.getUserProfile().getId(), recipientId);
+                }
+            } catch (Exception e) {
+                // Ignorar erros de salvamento
+            }
+        }
+        
         executorService.submit(new Runnable() {
             @Override
             public void run() {
@@ -171,6 +197,26 @@ public class ConnectionManager {
         });
     }
 
+    private Long getUserRemoteId(String username) {
+        try {
+            java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                .uri(java.net.URI.create("http://localhost:8080/api/users/by-username/" + username))
+                .GET()
+                .build();
+            
+            java.net.http.HttpResponse<String> response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                com.fasterxml.jackson.databind.JsonNode json = mapper.readTree(response.body());
+                return json.get("id").asLong();
+            }
+        } catch (Exception e) {
+            // Ignorar erros de busca de ID
+        }
+        return null;
+    }
+
     public int getServerPort() {
         return serverManager != null ? serverManager.getServerPort() : -1;
     }
@@ -192,7 +238,7 @@ public class ConnectionManager {
 
     public void notifyUserLeft(String username) {
         if (outputStreams.containsKey(username)) {
-            sendMessage(username, new Message(App.getUserProfile().getUsername(), username, App.getUserProfile().getUsername() + " left the chat", Message.MessageType.SYSTEM));
+            sendMessage(username, new Message(App.getUserProfile().getUsername(), username, App.getUserProfile().getUsername() + " saiu do chat", Message.MessageType.SYSTEM));
         }
     }
 
@@ -200,7 +246,7 @@ public class ConnectionManager {
         for (String user : activeConnections.keySet()) {
             if (outputStreams.containsKey(user)) {
                 try {
-                    Message msg = new Message(App.getUserProfile().getUsername(), user, App.getUserProfile().getUsername() + " closed chat-p2p", Message.MessageType.SYSTEM);
+                    Message msg = new Message(App.getUserProfile().getUsername(), user, App.getUserProfile().getUsername() + " fechou o chat-p2p", Message.MessageType.SYSTEM);
                     outputStreams.get(user).writeObject(msg);
                     outputStreams.get(user).flush();
                 } catch (IOException e) {
