@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.chatp2p.controllers.ProfileController">
+    <center>
+        <VBox alignment="CENTER" spacing="30.0" styleClass="profile-container">
+            <padding>
+                <Insets bottom="40.0" left="40.0" right="40.0" top="40.0"/>
+            </padding>
+            <Label styleClass="title-label" text="MEU PERFIL"/>
+
+            <HBox alignment="CENTER" spacing="20.0">
+                <ImageView fx:id="profileImageView"
+                           fitWidth="160"
+                           fitHeight="160"
+                           preserveRatio="true"/>
+                <Button styleClass="secondary-button" text="TROCAR IMAGEM" onAction="#handleChangePhoto" />
+            </HBox>
+
+            <VBox spacing="20.0" alignment="CENTER">
+                <VBox spacing="5.0" alignment="CENTER">
+                    <Label text="Nome de usuário:" styleClass="field-label"/>
+                    <TextField fx:id="usernameField" styleClass="login-field"
+                               promptText="Digite o novo nome de usuário"/>
+                </VBox>
+                <VBox spacing="5.0" alignment="CENTER">
+                    <Label text="Nova senha:" styleClass="field-label"/>
+                    <PasswordField fx:id="newPasswordField" styleClass="login-field" promptText="Digite a nova senha"/>
+                </VBox>
+            </VBox>
+            <Label fx:id="messageLabel" styleClass="error-message"/>
+            <HBox alignment="CENTER" spacing="20.0">
+                <Button fx:id="saveButton" styleClass="primary-button" text="SALVAR"
+                        onAction="#handleSave"/>
+                <Button fx:id="backButton" styleClass="secondary-button" text="VOLTAR"
+                        onAction="#handleBack"/>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

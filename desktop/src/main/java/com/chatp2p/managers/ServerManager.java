@@ -1,5 +1,6 @@
 package com.chatp2p.managers;
 
+import com.chatp2p.exceptions.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -18,15 +19,13 @@ public class ServerManager {
     public void startP2PServer(int port) throws IOException {
         executorService = Executors.newCachedThreadPool();
         serverSocket = new ServerSocket(port);
-        System.out.println("Servidor P2P na porta: " + serverSocket.getLocalPort());
-
         executorService.submit(() -> {
             while (!serverSocket.isClosed()) {
                 try {
                     Socket clientSocket = serverSocket.accept();
                     executorService.submit(() -> connectionManager.handleIncomingConnection(clientSocket));
                 } catch (IOException e) {
-                    if (!serverSocket.isClosed()) e.printStackTrace();
+                    throw new NetworkException("Failed to accept incoming connection", e);
                 }
             }
         });
@@ -34,15 +33,11 @@ public class ServerManager {
 
     public void shutdown() {
         try {
-            if (serverSocket != null) {
-                serverSocket.close();
-            }
+            if (serverSocket != null) serverSocket.close();
         } catch (IOException e) {
-            System.err.println("Erro ao fechar servidor: " + e.getMessage());
+            throw new NetworkException("Failed to close server socket", e);
         }
-        if (executorService != null) {
-            executorService.shutdownNow();
-        }
+        if (executorService != null) executorService.shutdownNow();
     }
 
     public int getServerPort() {

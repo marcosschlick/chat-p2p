@@ -1,27 +1,12 @@
-package com.chatp2p.centralserver.dtos;
+package com.chatp2p.models;
 
-public class LoginResponse {
-    private String token;
+public class UserProfile {
     private Long id;
     private String username;
     private String profileImageUrl;
+    private String authToken;
 
-    public LoginResponse() {
-    }
-
-    public LoginResponse(String token, Long id, String username, String profileImageUrl) {
-        this.token = token;
-        this.id = id;
-        this.username = username;
-        this.profileImageUrl = profileImageUrl;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
+    public UserProfile() {
     }
 
     public Long getId() {
@@ -46,5 +31,13 @@ public class LoginResponse {
 
     public void setProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
     }
 }

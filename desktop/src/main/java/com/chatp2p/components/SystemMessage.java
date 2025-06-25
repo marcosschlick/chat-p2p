@@ -10,10 +10,8 @@ public class SystemMessage extends HBox {
         super();
         setAlignment(Pos.CENTER);
         setPadding(new Insets(2));
-
         Label label = new Label(message);
         label.setStyle("-fx-text-fill: #aaaaaa; -fx-font-size: 12px; -fx-font-style: italic;");
-
         getChildren().add(label);
     }
 }

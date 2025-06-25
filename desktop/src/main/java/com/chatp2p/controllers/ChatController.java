@@ -4,6 +4,7 @@ import com.chatp2p.components.FileMessageBubble;
 import com.chatp2p.components.MessageBubble;
 import com.chatp2p.components.SystemMessage;
 import com.chatp2p.core.App;
+import com.chatp2p.exceptions.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -47,14 +48,24 @@ public class ChatController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         instance = this;
-        userLabel.setText(selectedUser != null ? selectedUser : "");
-
-        messagesContainer.heightProperty().addListener((obs, oldVal, newVal) -> {
-            messagesScrollPane.setVvalue(1.0);
+        if (selectedUser != null) {
+            userLabel.setText(selectedUser);
+        } else {
+            userLabel.setText("");
+        }
+        messagesContainer.heightProperty().addListener(new javafx.beans.value.ChangeListener<Number>() {
+            @Override
+            public void changed(javafx.beans.value.ObservableValue<? extends Number> obs, Number oldVal, Number newVal) {
+                messagesScrollPane.setVvalue(1.0);
+            }
         });
-
-        messageField.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ENTER) handleSendMessage();
+        messageField.setOnKeyPressed(new javafx.event.EventHandler<javafx.scene.input.KeyEvent>() {
+            @Override
+            public void handle(javafx.scene.input.KeyEvent event) {
+                if (event.getCode() == KeyCode.ENTER) {
+                    handleSendMessage();
+                }
+            }
         });
     }
 
@@ -76,7 +87,6 @@ public class ChatController implements Initializable {
         File file = new FileChooser().showOpenDialog(new Stage());
         if (file != null) {
             App.sendFile(selectedUser, file);
-
         }
     }
 
@@ -93,13 +103,16 @@ public class ChatController implements Initializable {
     }
 
     public void addReceivedFile(String fileName, byte[] fileData) {
-        Platform.runLater(() -> {
-            try {
-                File file = new File(System.getProperty("user.home") + "/Downloads/" + fileName);
-                Files.write(file.toPath(), fileData);
-                addFileMessage(fileName, false);
-            } catch (IOException e) {
-                e.printStackTrace();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    File file = new File(System.getProperty("user.home") + "/Downloads/" + fileName);
+                    Files.write(file.toPath(), fileData);
+                    addFileMessage(fileName, false);
+                } catch (IOException e) {
+                    throw new AppException("Failed to save received file: " + fileName, e);
+                }
             }
         });
     }
@@ -118,12 +131,14 @@ public class ChatController implements Initializable {
 
     @FXML
     private void handleBack() {
-        App.notifyUserLeft(selectedUser);
+        if (App.getUserProfile() != null) {
+            App.notifyUserLeft(selectedUser);
+        }
 
         try {
             App.setRoot("OnlineUsers");
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new AppException("Failed to go back to OnlineUsers", e);
         }
     }
 

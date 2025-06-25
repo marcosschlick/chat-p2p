@@ -3,6 +3,7 @@ package com.chatp2p.managers;
 import com.chatp2p.core.App;
 import com.chatp2p.controllers.ChatController;
 import com.chatp2p.models.Message;
+import com.chatp2p.exceptions.*;
 import javafx.application.Platform;
 import java.io.*;
 import java.net.*;
@@ -22,7 +23,7 @@ public class ConnectionManager {
             serverManager.startP2PServer(55555);
             executorService = Executors.newCachedThreadPool();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new NetworkException("Failed to start P2P server", e);
         }
     }
 
@@ -30,142 +31,142 @@ public class ConnectionManager {
         try {
             ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
             Message message = (Message) ois.readObject();
-
             if (message.getType() == Message.MessageType.CONNECTION_REQUEST) {
                 String sender = message.getSender();
                 activeConnections.put(sender, socket);
                 outputStreams.put(sender, new ObjectOutputStream(socket.getOutputStream()));
-
-                Platform.runLater(() -> {
-                    if (ChatController.getInstance() != null) {
-                        ChatController.getInstance().addSystemMessage(sender + " entrou no chat");
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (ChatController.getInstance() != null) {
+                            ChatController.getInstance().addSystemMessage(sender + " joined the chat");
+                        }
                     }
                 });
-
                 startMessageListener(sender, ois);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new ConnectionException("Failed to handle incoming connection", e);
         }
     }
 
     private void startMessageListener(String sender, ObjectInputStream ois) {
-        executorService.submit(() -> {
-            try {
-                while (!Thread.currentThread().isInterrupted()) {
-                    Message message = (Message) ois.readObject();
-
-                    Platform.runLater(() -> {
-                        if (ChatController.getInstance() != null &&
-                                ChatController.getInstance().isChattingWith(sender)) {
-
-                            if (message.getType() == Message.MessageType.FILE) {
-                                ChatController.getInstance().addReceivedFile(
-                                        message.getFileName(), message.getFileData()
-                                );
-                            } else if (message.getType() == Message.MessageType.TEXT) {
-                                ChatController.getInstance().addReceivedMessage(message.getContent());
-                            } else if (message.getType() == Message.MessageType.SYSTEM) {
-                                ChatController.getInstance().addSystemMessage(message.getContent());
-                            }
-                        }
-                    });
-                }
-            } catch (SocketException | EOFException e) {
-            } catch (Exception e) {
-                System.err.println("Erro na conexão com " + sender + ": " + e.getMessage());
-            } finally {
+        executorService.submit(new Runnable() {
+            @Override
+            public void run() {
                 try {
-                    if (activeConnections.containsKey(sender)) {
-                        activeConnections.get(sender).close();
+                    while (!Thread.currentThread().isInterrupted()) {
+                        Message message = (Message) ois.readObject();
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (ChatController.getInstance() != null && ChatController.getInstance().isChattingWith(sender)) {
+                                    if (message.getType() == Message.MessageType.FILE) {
+                                        ChatController.getInstance().addReceivedFile(message.getFileName(), message.getFileData());
+                                    } else if (message.getType() == Message.MessageType.TEXT) {
+                                        ChatController.getInstance().addReceivedMessage(message.getContent());
+                                    } else if (message.getType() == Message.MessageType.SYSTEM) {
+                                        ChatController.getInstance().addSystemMessage(message.getContent());
+                                    }
+                                }
+                            }
+                        });
                     }
-                } catch (IOException ex) {
-                    System.err.println("Erro ao fechar socket: " + ex.getMessage());
+                } catch (SocketException | EOFException e) {
+                    // Connection closed, do nothing
+                } catch (Exception e) {
+                    throw new ConnectionException("Error in message listener for user: " + sender, e);
+                } finally {
+                    try {
+                        if (activeConnections.containsKey(sender)) {
+                            activeConnections.get(sender).close();
+                        }
+                    } catch (IOException e) {
+                        throw new NetworkException("Failed to close socket for user: " + sender, e);
+                    }
+                    activeConnections.remove(sender);
+                    outputStreams.remove(sender);
                 }
-
-                activeConnections.remove(sender);
-                outputStreams.remove(sender);
             }
         });
     }
 
     public void connectToPeer(String username, String ip, int port) {
-        executorService.submit(() -> {
-            try {
-                Socket socket = new Socket();
-                socket.connect(new InetSocketAddress(ip, port), 5000);
-
-                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-                oos.writeObject(new Message(
-                        App.getCurrentUser(), username,
-                        "Solicitação de conexão",
-                        Message.MessageType.CONNECTION_REQUEST
-                ));
-
-                activeConnections.put(username, socket);
-                outputStreams.put(username, oos);
-
-                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-                startMessageListener(username, ois);
-
-                Platform.runLater(() -> {
-                    if (ChatController.getInstance() != null) {
-                        ChatController.getInstance().addSystemMessage("Você entrou no chat com " + username);
-                    }
-                });
-            } catch (Exception e) {
-                Platform.runLater(() -> {
-                    if (ChatController.getInstance() != null) {
-                        ChatController.getInstance().showAlert(
-                                "Erro de Conexão",
-                                "Não foi possível conectar a " + username + ": " + e.getMessage()
-                        );
-                    }
-                });
+        executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Socket socket = new Socket();
+                    socket.connect(new InetSocketAddress(ip, port), 5000);
+                    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                    oos.writeObject(new Message(App.getUserProfile().getUsername(), username, "Connection request", Message.MessageType.CONNECTION_REQUEST));
+                    activeConnections.put(username, socket);
+                    outputStreams.put(username, oos);
+                    ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+                    startMessageListener(username, ois);
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (ChatController.getInstance() != null) {
+                                ChatController.getInstance().addSystemMessage("You joined the chat with " + username);
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (ChatController.getInstance() != null) {
+                                ChatController.getInstance().showAlert("Connection Error", "Could not connect to " + username + ": " + e.getMessage());
+                            }
+                        }
+                    });
+                    throw new ConnectionException("Failed to connect to peer: " + username, e);
+                }
             }
         });
     }
 
     public void sendMessage(String recipient, String content) {
-        sendMessage(recipient, new Message(
-                App.getCurrentUser(), recipient, content, Message.MessageType.TEXT
-        ));
+        sendMessage(recipient, new Message(App.getUserProfile().getUsername(), recipient, content, Message.MessageType.TEXT));
     }
 
     public void sendFile(String recipient, File file) {
         try {
             byte[] fileData = Files.readAllBytes(file.toPath());
-            sendMessage(recipient, new Message(
-                    App.getCurrentUser(), recipient, file.getName(), fileData, Message.MessageType.FILE
-            ));
+            sendMessage(recipient, new Message(App.getUserProfile().getUsername(), recipient, file.getName(), fileData, Message.MessageType.FILE));
         } catch (IOException e) {
             Platform.runLater(() -> {
                 if (ChatController.getInstance() != null) {
-                    ChatController.getInstance().showAlert("Erro", "Falha ao enviar arquivo");
+                    ChatController.getInstance().showAlert("Error", "Failed to send file");
                 }
             });
+            throw new NetworkException("Failed to send file to " + recipient, e);
         }
     }
 
     public void sendMessage(String recipient, Message message) {
         if (!outputStreams.containsKey(recipient)) return;
-
-        executorService.submit(() -> {
-            try {
-                outputStreams.get(recipient).writeObject(message);
-                Platform.runLater(() -> {
-                    if (ChatController.getInstance() != null &&
-                            ChatController.getInstance().isChattingWith(recipient)) {
-
-                        if (message.getType() == Message.MessageType.FILE) {
-                            ChatController.getInstance().addSentFile(message.getFileName());
-                        } else {
-                            ChatController.getInstance().addSentMessage(message.getContent());
+        executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    outputStreams.get(recipient).writeObject(message);
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (ChatController.getInstance() != null && ChatController.getInstance().isChattingWith(recipient)) {
+                                if (message.getType() == Message.MessageType.FILE) {
+                                    ChatController.getInstance().addSentFile(message.getFileName());
+                                } else {
+                                    ChatController.getInstance().addSentMessage(message.getContent());
+                                }
+                            }
                         }
-                    }
-                });
-            } catch (IOException e) {
-                System.err.println("Erro ao enviar mensagem: " + e.getMessage());
+                    });
+                } catch (IOException e) {
+                    throw new NetworkException("Failed to send message to " + recipient, e);
+                }
             }
         });
     }
@@ -175,38 +176,23 @@ public class ConnectionManager {
     }
 
     public void shutdown() {
-        if (serverManager != null) {
-            serverManager.shutdown();
-        }
-
+        if (serverManager != null) serverManager.shutdown();
         for (Socket socket : activeConnections.values()) {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                System.err.println("Erro ao fechar socket: " + e.getMessage());
+            try { socket.close(); } catch (IOException e) {
+                throw new NetworkException("Failed to close socket during shutdown", e);
             }
         }
-
         if (executorService != null) {
             executorService.shutdownNow();
-            try {
-                if (!executorService.awaitTermination(2, TimeUnit.SECONDS)) {
-                    System.err.println("ExecutorService não terminou a tempo");
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            try { executorService.awaitTermination(2, TimeUnit.SECONDS); } catch (InterruptedException e) {
+                throw new AppException("Shutdown interrupted", e);
             }
         }
     }
 
     public void notifyUserLeft(String username) {
         if (outputStreams.containsKey(username)) {
-            sendMessage(username, new Message(
-                    App.getCurrentUser(),
-                    username,
-                    App.getCurrentUser() + " saiu do chat",
-                    Message.MessageType.SYSTEM
-            ));
+            sendMessage(username, new Message(App.getUserProfile().getUsername(), username, App.getUserProfile().getUsername() + " left the chat", Message.MessageType.SYSTEM));
         }
     }
 
@@ -214,16 +200,11 @@ public class ConnectionManager {
         for (String user : activeConnections.keySet()) {
             if (outputStreams.containsKey(user)) {
                 try {
-                    Message msg = new Message(
-                            App.getCurrentUser(),
-                            user,
-                            App.getCurrentUser() + " fechou o chat-p2p",
-                            Message.MessageType.SYSTEM
-                    );
+                    Message msg = new Message(App.getUserProfile().getUsername(), user, App.getUserProfile().getUsername() + " closed chat-p2p", Message.MessageType.SYSTEM);
                     outputStreams.get(user).writeObject(msg);
                     outputStreams.get(user).flush();
                 } catch (IOException e) {
-                    System.err.println("Erro ao notificar fechamento para " + user + ": " + e.getMessage());
+                    throw new NetworkException("Failed to notify user about app closing: " + user, e);
                 }
             }
         }
