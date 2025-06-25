@@ -4,19 +4,20 @@ import java.io.Serializable;
 
 public class Message implements Serializable {
     public enum MessageType {
-        TEXT,
-        FILE,
-        CONNECTION_REQUEST,
-        SYSTEM
+        TEXT, FILE, CONNECTION_REQUEST, SYSTEM
     }
 
     private static final long serialVersionUID = 1L;
-    private final String sender;
-    private final String recipient;
-    private final MessageType type;
+    private String sender;
+    private String recipient;
+    private MessageType type;
     private String content;
     private String fileName;
     private byte[] fileData;
+
+    public Message() {
+        // Construtor vazio para facilitar uso didático
+    }
 
     public Message(String sender, String recipient, String content, MessageType type) {
         this.sender = sender;
@@ -37,23 +38,47 @@ public class Message implements Serializable {
         return sender;
     }
 
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+
     public String getRecipient() {
         return recipient;
+    }
+
+    public void setRecipient(String recipient) {
+        this.recipient = recipient;
     }
 
     public String getContent() {
         return content;
     }
 
+    public void setContent(String content) {
+        this.content = content;
+    }
+
     public String getFileName() {
         return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public byte[] getFileData() {
         return fileData;
     }
 
+    public void setFileData(byte[] fileData) {
+        this.fileData = fileData;
+    }
+
     public MessageType getType() {
         return type;
+    }
+
+    public void setType(MessageType type) {
+        this.type = type;
     }
 }
