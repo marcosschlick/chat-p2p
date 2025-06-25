@@ -9,6 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +22,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
+@Tag(name = "Users", description = "Endpoints for user management and profile")
 public class UserController {
 
     @Autowired
@@ -28,6 +34,8 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Operation(summary = "Get online users", description = "Returns a list of online users with username, profile image URL, and IP address.")
+    @ApiResponse(responseCode = "200", description = "List of online users")
     @GetMapping("/online")
     public ResponseEntity<List<Map<String, String>>> getOnlineUsers() {
         List<Map<String, String>> users = userRepository.findOnlineUsers().stream().map(user -> {
@@ -40,6 +48,12 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    @Operation(summary = "Update user profile", description = "Updates the authenticated user's profile information (username, password, profile image). Requires JWT token.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "User updated successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid data or username already taken"),
+        @ApiResponse(responseCode = "401", description = "Invalid or expired token")
+    })
     @PutMapping("/me")
     public ResponseEntity<Object> updateUser(@RequestHeader("Authorization") String authHeader, @RequestBody UpdateUserDTO updateUserDTO) {
         try {
@@ -55,6 +69,11 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Get profile image by username", description = "Returns the profile image URL for a given username.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Profile image URL found"),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @GetMapping("/profile-image/{username}")
     public ResponseEntity<Object> getProfileImageByUsername(@PathVariable String username) {
         try {
