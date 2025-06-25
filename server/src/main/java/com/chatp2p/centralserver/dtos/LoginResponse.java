@@ -1,9 +1,18 @@
 package com.chatp2p.centralserver.dtos;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public class LoginResponse {
+    @Schema(description = "JWT token for authentication", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6...")
     private String token;
+
+    @Schema(description = "User ID", example = "1")
     private Long id;
+
+    @Schema(description = "Username", example = "john_doe")
     private String username;
+
+    @Schema(description = "Profile image URL", example = "/com/chatp2p/images/default_user.png")
     private String profileImageUrl;
 
     public LoginResponse() {
