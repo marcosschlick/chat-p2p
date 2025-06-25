@@ -2,14 +2,16 @@ package com.chatp2p.centralserver.dtos;
 
 public class LoginResponse {
     private String token;
+    private Long id;
     private String username;
     private String profileImageUrl;
 
     public LoginResponse() {
     }
 
-    public LoginResponse(String token, String username, String profileImageUrl) {
+    public LoginResponse(String token, Long id, String username, String profileImageUrl) {
         this.token = token;
+        this.id = id;
         this.username = username;
         this.profileImageUrl = profileImageUrl;
     }
@@ -20,6 +22,14 @@ public class LoginResponse {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getUsername() {
