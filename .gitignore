@@ -17,3 +17,4 @@ HELP.md
 
 ### H2 Database ###
 desktop/database/*
+!desktop/database/.gitkeep
