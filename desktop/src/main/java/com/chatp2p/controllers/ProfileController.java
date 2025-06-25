@@ -2,6 +2,8 @@ package com.chatp2p.controllers;
 
 import com.chatp2p.core.App;
 import com.chatp2p.managers.HttpManager;
+import com.chatp2p.models.UserProfile;
+import com.chatp2p.exceptions.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -38,7 +40,7 @@ public class ProfileController implements Initializable {
     private Button backButton;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private String selectedImageName = null;  // Armazena apenas o nome do arquivo
+    private String selectedImageName = null;  // Stores only the file name
 
     private final String[] availableImages = {
             "default_user.png",
@@ -54,39 +56,38 @@ public class ProfileController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        usernameField.setText(App.getCurrentUser());
-        loadProfileImage();
+        UserProfile profile = App.getUserProfile();
+        if (profile != null) {
+            usernameField.setText(profile.getUsername());
+            setProfileImageView(profile.getProfileImageUrl());
+        }
     }
 
-    private void loadProfileImage() {
-        try {
-            String profileImageUrl = App.getProfileImageUrl();
-            if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
-                // Se a URL já está completa, usa diretamente
-                Image image = new Image(profileImageUrl);
+    private void setProfileImageView(String imageUrl) {
+        if (profileImageView != null && imageUrl != null && !imageUrl.isEmpty()) {
+            try {
+                if (!imageUrl.startsWith("/com/chatp2p/images/")) {
+                    imageUrl = "/com/chatp2p/images/" + imageUrl;
+                }
+                Image image = new Image(getClass().getResourceAsStream(imageUrl));
                 profileImageView.setImage(image);
-            } else {
-                // Caso contrário, carrega a padrão
-                Image defaultImage = new Image(getClass().getResourceAsStream("/com/chatp2p/images/default_user.png"));
-                profileImageView.setImage(defaultImage);
+            } catch (Exception e) {
+                profileImageView.setImage(new Image(getClass().getResourceAsStream("/com/chatp2p/images/default_user.png")));
             }
-        } catch (Exception e) {
-            System.err.println("Erro ao carregar imagem padrão: " + e.getMessage());
+        } else {
+            profileImageView.setImage(new Image(getClass().getResourceAsStream("/com/chatp2p/images/default_user.png")));
         }
     }
 
     @FXML
     private void handleChangePhoto() {
-        // Criar um diálogo personalizado
         Dialog<String> dialog = new Dialog<>();
-        dialog.setTitle("Selecionar Foto do Perfil");
-        dialog.setHeaderText("Escolha uma imagem:");
+        dialog.setTitle("Select Profile Photo");
+        dialog.setHeaderText("Choose an image:");
 
-        // Configurar botões
-        ButtonType selectButtonType = new ButtonType("Selecionar", ButtonBar.ButtonData.OK_DONE);
+        ButtonType selectButtonType = new ButtonType("Select", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(selectButtonType, ButtonType.CANCEL);
 
-        // Layout para as imagens
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
@@ -96,10 +97,9 @@ public class ProfileController implements Initializable {
         int row = 0;
         for (String imageName : availableImages) {
             try {
-                // Carregar a imagem do recurso
                 InputStream is = getClass().getResourceAsStream("/com/chatp2p/images/" + imageName);
                 if (is == null) {
-                    System.err.println("Imagem não encontrada: " + imageName);
+                    System.err.println("Image not found: " + imageName);
                     continue;
                 }
                 Image image = new Image(is);
@@ -108,30 +108,27 @@ public class ProfileController implements Initializable {
                 imageView.setFitHeight(80);
                 imageView.setPreserveRatio(true);
 
-                // Container para a imagem (para borda e clique)
                 VBox container = new VBox(imageView);
                 container.setAlignment(Pos.CENTER);
                 container.setPadding(new Insets(5));
                 container.setStyle("-fx-border-color: #555555; -fx-border-radius: 5;");
                 container.setOnMouseClicked(e -> {
-                    // Define o resultado do diálogo como o nome da imagem
                     dialog.setResult(imageName);
                 });
 
                 grid.add(container, col, row);
                 col++;
-                if (col > 2) { // 3 colunas
+                if (col > 2) {
                     col = 0;
                     row++;
                 }
             } catch (Exception e) {
-                System.err.println("Erro ao carregar imagem: " + imageName + ": " + e.getMessage());
+                throw new AppException("Failed to load image: " + imageName, e);
             }
         }
 
         dialog.getDialogPane().setContent(grid);
 
-        // Converter o resultado para o nome da imagem
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == selectButtonType) {
                 return dialog.getResult();
@@ -142,16 +139,13 @@ public class ProfileController implements Initializable {
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(imageName -> {
             try {
-                // Armazena apenas o nome do arquivo
                 selectedImageName = imageName;
-
-                // Atualizar a exibição
                 Image newImage = new Image(getClass().getResource("/com/chatp2p/images/" + imageName).toString());
                 profileImageView.setImage(newImage);
-
                 showMessage("Foto selecionada com sucesso!", "success");
             } catch (Exception e) {
                 showMessage("Erro ao carregar a imagem", "error");
+                throw new AppException("Failed to load selected image: " + imageName, e);
             }
         });
     }
@@ -168,66 +162,75 @@ public class ProfileController implements Initializable {
 
         saveButton.setDisable(true);
 
-        new Thread(() -> {
-            try {
-                updateProfile(newUsername, newPassword);
-            } finally {
-                Platform.runLater(() -> saveButton.setDisable(false));
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    updateProfile(newUsername, newPassword);
+                    App.getUserProfile().setUsername(newUsername);
+                    if (selectedImageName != null) {
+                        App.getUserProfile().setProfileImageUrl(selectedImageName);
+                    }
+                } finally {
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            saveButton.setDisable(false);
+                        }
+                    });
+                }
             }
-        }).start();
+        });
+        thread.start();
     }
 
     private void updateProfile(String newUsername, String newPassword) {
-        String token = App.getAuthToken();
+        String token = App.getUserProfile().getAuthToken();
         if (token == null) {
             showMessage("Token não encontrado", "error");
             return;
         }
-
         try {
-            Map<String, Object> profileData = new HashMap<>();
-            profileData.put("username", newUsername);
-
-            if (!newPassword.isEmpty()) {
-                profileData.put("password", newPassword);
+            String usernameToSend = newUsername;
+            String passwordToSend = newPassword;
+            String imageToSend = selectedImageName;
+            StringBuilder jsonBuilder = new StringBuilder();
+            jsonBuilder.append("{");
+            jsonBuilder.append("\"username\":\"").append(usernameToSend).append("\"");
+            if (passwordToSend != null && !passwordToSend.isEmpty()) {
+                jsonBuilder.append(",\"password\":\"").append(passwordToSend).append("\"");
             }
-
-            // Envia apenas o nome do arquivo, não o Base64
-            if (selectedImageName != null) {
-                profileData.put("profileImageUrl", selectedImageName);
+            if (imageToSend != null) {
+                jsonBuilder.append(",\"profileImageUrl\":\"").append(imageToSend).append("\"");
             }
-
-            String jsonBody = objectMapper.writeValueAsString(profileData);
-
-            // Usando o novo endpoint com método PUT
+            jsonBuilder.append("}");
+            String jsonBody = jsonBuilder.toString();
             HttpResponse<String> response = HttpManager.putWithToken(
                     "http://localhost:8080/api/users/me",
                     token,
                     jsonBody
             );
-
-            Platform.runLater(() -> {
-                if (response.statusCode() == 200) {
-                    showMessage("Perfil atualizado com sucesso!", "success");
-                    if (!newUsername.equals(App.getCurrentUser())) {
-                        App.setCurrentUser(newUsername);
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    if (response.statusCode() == 200) {
+                        showMessage("Perfil atualizado com sucesso!", "success");
+                        if (App.getUserProfile() != null) {
+                            App.getUserProfile().setUsername(newUsername);
+                        }
+                        if (selectedImageName != null) {
+                            App.getUserProfile().setProfileImageUrl(selectedImageName);
+                        }
+                        newPasswordField.clear();
+                        selectedImageName = null;
+                    } else {
+                        showMessage("Erro ao atualizar perfil: " + response.statusCode(), "error");
                     }
-
-                    // Atualiza a URL da imagem no app
-                    if (selectedImageName != null) {
-                        App.setProfileImageUrl("/com/chatp2p/images/" + selectedImageName);
-                    }
-
-                    newPasswordField.clear();
-                    selectedImageName = null; // Resetar após atualização
-                } else {
-                    showMessage("Erro ao atualizar perfil: " + response.statusCode(), "error");
                 }
             });
         } catch (Exception e) {
-            Platform.runLater(() ->
-                    showMessage("Erro na conexão: " + e.getMessage(), "error")
-            );
+            showMessage("Erro na conexão: " + e.getMessage(), "error");
+            throw new NetworkException("Failed to update profile for user: " + newUsername, e);
         }
     }
 
@@ -237,14 +240,18 @@ public class ProfileController implements Initializable {
             App.setRoot("OnlineUsers");
         } catch (Exception e) {
             showMessage("Erro ao voltar: " + e.getMessage(), "error");
+            throw new AppException("Failed to go back to OnlineUsers", e);
         }
     }
 
     private void showMessage(String message, String type) {
-        Platform.runLater(() -> {
-            messageLabel.setText(message);
-            messageLabel.getStyleClass().removeAll("error-message", "success-message");
-            messageLabel.getStyleClass().add(type + "-message");
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                messageLabel.setText(message);
+                messageLabel.getStyleClass().removeAll("error-message", "success-message");
+                messageLabel.getStyleClass().add(type + "-message");
+            }
         });
     }
 }
