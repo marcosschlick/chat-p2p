@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,41 +48,31 @@ public class UserController {
     }
 
     @Operation(summary = "Get user by username", description = "Returns user information including ID for a given username.")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "User found"),
-        @ApiResponse(responseCode = "404", description = "User not found")
-    })
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "User found"), @ApiResponse(responseCode = "404", description = "User not found")})
     @GetMapping("/by-username/{username}")
     public ResponseEntity<Map<String, Object>> getUserByUsername(@PathVariable String username) {
         try {
-            return userRepository.findByUsername(username)
-                .map(user -> {
-                    Map<String, Object> userData = new HashMap<>();
-                    userData.put("id", user.getId());
-                    userData.put("username", user.getUsername());
-                    userData.put("profileImageUrl", user.getProfileImageUrl());
-                    return ResponseEntity.ok(userData);
-                })
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Usuário não encontrado")));
+            return userRepository.findByUsername(username).map(user -> {
+                Map<String, Object> userData = new HashMap<>();
+                userData.put("id", user.getId());
+                userData.put("username", user.getUsername());
+                userData.put("profileImageUrl", user.getProfileImageUrl());
+                return ResponseEntity.ok(userData);
+            }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Usuário não encontrado")));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", "Erro interno do servidor"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Erro interno do servidor"));
         }
     }
 
     @Operation(summary = "Update user profile", description = "Updates the authenticated user's profile information (username, password, profile image). Requires JWT token.")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "User updated successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid data or username already taken"),
-        @ApiResponse(responseCode = "401", description = "Invalid or expired token")
-    })
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "User updated successfully"), @ApiResponse(responseCode = "400", description = "Invalid data or username already taken"), @ApiResponse(responseCode = "401", description = "Invalid or expired token")})
     @PutMapping("/me")
     public ResponseEntity<Object> updateUser(@RequestHeader("Authorization") String authHeader, @RequestBody UpdateUserDTO updateUserDTO) {
         try {
             String token = authHeader.replace("Bearer ", "");
             Long userId = jwtUtil.getUserIdFromToken(token);
-
+            System.out.println(updateUserDTO.getUsername());
+            System.out.println(updateUserDTO.getProfileImageUrl());
             userService.updateUser(userId, updateUserDTO);
             return ResponseEntity.ok(Map.of("message", "User updated successfully"));
         } catch (AuthException e) {
@@ -94,10 +83,7 @@ public class UserController {
     }
 
     @Operation(summary = "Get profile image by username", description = "Returns the profile image URL for a given username.")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Profile image URL found"),
-        @ApiResponse(responseCode = "404", description = "User not found")
-    })
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Profile image URL found"), @ApiResponse(responseCode = "404", description = "User not found")})
     @GetMapping("/profile-image/{username}")
     public ResponseEntity<Object> getProfileImageByUsername(@PathVariable String username) {
         try {
