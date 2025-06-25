@@ -12,8 +12,8 @@ HELP.md
 *.ipr
 
 ### Environment Variables ###
-.env
-*.env
+### .env ###
+### *.env ###
 
 ### H2 Database ###
 desktop/database/*
