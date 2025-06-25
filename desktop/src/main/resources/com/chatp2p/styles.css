@@ -1,4 +1,4 @@
-/* ===== ESTILOS GLOBAIS ===== */
+/* ===== GLOBAL STYLES ===== */
 .root {
     -fx-background-color: #2d2d2d;
     -fx-font-family: "Segoe UI", Arial, sans-serif;
@@ -16,7 +16,7 @@
     -fx-alignment: center;
 }
 
-/* ===== TELA DE LOGIN ===== */
+/* ===== LOGIN SCREEN ===== */
 .login-container {
     -fx-background-color: #2d2d2d;
     -fx-background-radius: 10;
@@ -95,7 +95,7 @@
     -fx-background-color: #7e57c2;
 }
 
-/* ===== TELA DE USUÁRIOS ONLINE ===== */
+/* ===== ONLINE USERS SCREEN ===== */
 .users-container {
     -fx-background-color: #2d2d2d;
     -fx-alignment: center;
@@ -165,7 +165,7 @@
     -fx-border-width: 2;
 }
 
-/* ===== TELA DE CHAT ===== */
+/* ===== CHAT SCREEN ===== */
 .chat-header {
     -fx-background-color: #b19cd9;
     -fx-padding: 15;
@@ -238,7 +238,7 @@
     -fx-background-color: #6a3de8;
 }
 
-/* ===== TELA DE PERFIL ===== */
+/* ===== PROFILE SCREEN ===== */
 .profile-container {
     -fx-background-color: #2d2d2d;
     -fx-alignment: center;
@@ -274,17 +274,17 @@
     -fx-max-width: 350;
 }
 
-/* Adicionar borda circular à imagem */
+/* Add circular border to the image */
 .profile-image-button .image-view {
     -fx-border-radius: 90;
     -fx-border-width: 2;
     -fx-border-color: #7c4dff;
 }
 
-/* ===== BOTÃO DE PERFIL ===== */
+/* ===== PROFILE BUTTON ===== */
 .profile-icon-button {
     -fx-background-color: #7c4dff;
-    -fx-background-radius: 10; /* 56/2 para círculo perfeito */
+    -fx-background-radius: 10; /* 56/2 for perfect circle */
     -fx-min-width: 56;
     -fx-min-height: 56;
     -fx-max-width: 56;
