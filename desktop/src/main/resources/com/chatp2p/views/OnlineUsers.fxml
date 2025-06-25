@@ -33,9 +33,7 @@
             </padding>
             <Button fx:id="profileButton" styleClass="profile-icon-button" onAction="#handleProfile">
                 <graphic>
-                    <ImageView fitHeight="56.0" fitWidth="56.0" preserveRatio="true">
-                        <Image url="@../icons/user.png"/>
-                    </ImageView>
+                    <ImageView fx:id="profileImageView" fitHeight="56.0" fitWidth="56.0" preserveRatio="true" />
                 </graphic>
             </Button>
         </HBox>
