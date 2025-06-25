@@ -54,4 +54,14 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid token"));
         }
     }
+
+    @GetMapping("/profile-image/{username}")
+    public ResponseEntity<Object> getProfileImageByUsername(@PathVariable String username) {
+        try {
+            String imageUrl = userService.findProfileImageByUsername(username);
+            return ResponseEntity.ok(Map.of("profileImageUrl", imageUrl));
+        } catch (AuthException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        }
+    }
 }

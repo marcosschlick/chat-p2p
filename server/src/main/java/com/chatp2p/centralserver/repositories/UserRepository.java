@@ -32,4 +32,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM User u WHERE u.username = :username AND u.id <> :id")
     boolean existsByUsernameAndIdNot(@Param("username") String username, @Param("id") Long id);
+
+    @Query("SELECT u.profileImageUrl FROM User u WHERE u.username = :username")
+    Optional<String> findProfileImageUrlByUsername(@Param("username") String username);
 }
