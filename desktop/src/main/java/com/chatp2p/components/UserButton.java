@@ -6,6 +6,8 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+import com.chatp2p.exceptions.*;
+import java.net.URL;
 
 public class UserButton extends Button {
     public UserButton(String username, String profileImageUrl) {
@@ -23,12 +25,18 @@ public class UserButton extends Button {
         userImage.setPreserveRatio(true);
 
         try {
-            if (profileImageUrl == null || profileImageUrl.isEmpty()) {
-                profileImageUrl = getClass().getResource("/com/chatp2p/images/default_user.png").toString();
+            if (profileImageUrl != null) {
+                URL imageUrl = getClass().getResource(profileImageUrl);
+                if (imageUrl != null) {
+                    userImage.setImage(new Image(imageUrl.toExternalForm()));
+                } else {
+                    loadDefaultImage(userImage);
+                }
+            } else {
+                loadDefaultImage(userImage);
             }
-            userImage.setImage(new Image(profileImageUrl, true));
         } catch (Exception e) {
-            userImage.setImage(new Image(getClass().getResource("/com/chatp2p/images/default_user.png").toString()));
+            throw new AppException("Failed to load user image for button: " + username, e);
         }
 
         Label userNameLabel = new Label(username);
@@ -36,5 +44,12 @@ public class UserButton extends Button {
 
         container.getChildren().addAll(userImage, userNameLabel);
         setGraphic(container);
+    }
+
+    private void loadDefaultImage(ImageView userImage) {
+        URL defaultUrl = getClass().getResource("/com/chatp2p/images/default_user.png");
+        if (defaultUrl != null) {
+            userImage.setImage(new Image(defaultUrl.toExternalForm()));
+        }
     }
 }
