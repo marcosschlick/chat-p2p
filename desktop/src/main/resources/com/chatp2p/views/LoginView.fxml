@@ -13,7 +13,10 @@
         </padding>
         <VBox alignment="CENTER" spacing="10.0">
             <StackPane styleClass="user-icon-container">
-                <ImageView fitWidth="240" fitHeight="240" preserveRatio="true">
+                <ImageView fx:id="userIconView"
+                           fitWidth="240"
+                           fitHeight="240"
+                           preserveRatio="true">
                     <Image url="@../images/default_user.png"/>
                 </ImageView>
             </StackPane>
