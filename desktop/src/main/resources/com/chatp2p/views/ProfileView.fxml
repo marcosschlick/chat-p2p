@@ -19,7 +19,7 @@
                            fitWidth="160"
                            fitHeight="160"
                            preserveRatio="true"/>
-                <Button styleClass="secondary-button" text="TROCAR IMAGEM" onAction="#handleChangePhoto" />
+                <Button styleClass="secondary-button" text="TROCAR IMAGEM" onAction="#handleChangePhoto"/>
             </HBox>
 
             <VBox spacing="20.0" alignment="CENTER">

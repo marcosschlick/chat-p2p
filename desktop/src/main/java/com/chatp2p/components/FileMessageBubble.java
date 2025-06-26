@@ -6,11 +6,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.util.Objects;
+
 public class FileMessageBubble extends MessageBubble {
     public FileMessageBubble(String fileName, boolean sent) {
         super("", sent);
         VBox bubble = (VBox) getChildren().get(0);
-        Image clipIcon = new Image(getClass().getResourceAsStream("/com/chatp2p/icons/paperclip.png"));
+        Image clipIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/chatp2p/icons/paperclip.png")));
         HBox container = new HBox(5);
         ImageView iconView = new ImageView(clipIcon);
         iconView.setFitWidth(16);
