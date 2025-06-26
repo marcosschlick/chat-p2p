@@ -1,5 +1,6 @@
 package com.chatp2p.controllers;
 
+import com.chatp2p.components.ImageSelectionDialog;
 import com.chatp2p.core.App;
 import com.chatp2p.managers.HttpManager;
 import com.chatp2p.models.UserProfile;
@@ -11,16 +12,15 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
 import java.net.URL;
 import java.net.http.HttpResponse;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -40,19 +40,9 @@ public class ProfileController implements Initializable {
     private Button backButton;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private String selectedImageName = null;  // Stores only the file name
+    private String selectedImageName = null;
 
-    private final String[] availableImages = {
-            "default_user.png",
-            "bob_esponja.jpg",
-            "chaves.png",
-            "groot.jpg",
-            "sasuke.png",
-            "squirtle.png",
-            "suarez.png",
-            "vegeta.png",
-            "capitao_america.png"
-    };
+    private final String[] availableImages = {"default_user.png", "bob_esponja.jpg", "chaves.png", "groot.jpg", "sasuke.png", "squirtle.png", "suarez.png", "vegeta.png", "capitao_america.png"};
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -69,78 +59,25 @@ public class ProfileController implements Initializable {
                 if (!imageUrl.startsWith("/com/chatp2p/images/")) {
                     imageUrl = "/com/chatp2p/images/" + imageUrl;
                 }
-                Image image = new Image(getClass().getResourceAsStream(imageUrl));
+                Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(imageUrl)));
                 profileImageView.setImage(image);
             } catch (Exception e) {
-                profileImageView.setImage(new Image(getClass().getResourceAsStream("/com/chatp2p/images/default_user.png")));
+                profileImageView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/chatp2p/images/default_user.png"))));
             }
         } else {
-            profileImageView.setImage(new Image(getClass().getResourceAsStream("/com/chatp2p/images/default_user.png")));
+            assert profileImageView != null;
+            profileImageView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/chatp2p/images/default_user.png"))));
         }
     }
 
     @FXML
     private void handleChangePhoto() {
-        Dialog<String> dialog = new Dialog<>();
-        dialog.setTitle("Select Profile Photo");
-        dialog.setHeaderText("Choose an image:");
-
-        ButtonType selectButtonType = new ButtonType("Select", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(selectButtonType, ButtonType.CANCEL);
-
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20, 20, 20, 20));
-
-        int col = 0;
-        int row = 0;
-        for (String imageName : availableImages) {
-            try {
-                InputStream is = getClass().getResourceAsStream("/com/chatp2p/images/" + imageName);
-                if (is == null) {
-                    System.err.println("Image not found: " + imageName);
-                    continue;
-                }
-                Image image = new Image(is);
-                ImageView imageView = new ImageView(image);
-                imageView.setFitWidth(80);
-                imageView.setFitHeight(80);
-                imageView.setPreserveRatio(true);
-
-                VBox container = new VBox(imageView);
-                container.setAlignment(Pos.CENTER);
-                container.setPadding(new Insets(5));
-                container.setStyle("-fx-border-color: #555555; -fx-border-radius: 5;");
-                container.setOnMouseClicked(e -> {
-                    dialog.setResult(imageName);
-                });
-
-                grid.add(container, col, row);
-                col++;
-                if (col > 2) {
-                    col = 0;
-                    row++;
-                }
-            } catch (Exception e) {
-                throw new AppException("Failed to load image: " + imageName, e);
-            }
-        }
-
-        dialog.getDialogPane().setContent(grid);
-
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == selectButtonType) {
-                return dialog.getResult();
-            }
-            return null;
-        });
-
-        Optional<String> result = dialog.showAndWait();
+        ImageSelectionDialog imageSelectionDialog = new ImageSelectionDialog(availableImages);
+        Optional<String> result = imageSelectionDialog.showAndWait();
         result.ifPresent(imageName -> {
             try {
                 selectedImageName = imageName;
-                Image newImage = new Image(getClass().getResource("/com/chatp2p/images/" + imageName).toString());
+                Image newImage = new Image(Objects.requireNonNull(getClass().getResource("/com/chatp2p/images/" + imageName).toString()));
                 profileImageView.setImage(newImage);
                 showMessage("Foto selecionada com sucesso!", "success");
             } catch (Exception e) {
@@ -148,6 +85,24 @@ public class ProfileController implements Initializable {
                 throw new AppException("Failed to load selected image: " + imageName, e);
             }
         });
+    }
+
+    @NotNull
+    private static VBox getVBox(String imageName, InputStream is, Dialog<String> dialog) {
+        Image image = new Image(is);
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(80);
+        imageView.setFitHeight(80);
+        imageView.setPreserveRatio(true);
+
+        VBox container = new VBox(imageView);
+        container.setAlignment(Pos.CENTER);
+        container.setPadding(new Insets(5));
+        container.setStyle("-fx-border-color: #555555; -fx-border-radius: 5;");
+        container.setOnMouseClicked(e -> {
+            dialog.setResult(imageName);
+        });
+        return container;
     }
 
     @FXML
@@ -191,25 +146,19 @@ public class ProfileController implements Initializable {
             return;
         }
         try {
-            String usernameToSend = newUsername;
-            String passwordToSend = newPassword;
             String imageToSend = selectedImageName;
             StringBuilder jsonBuilder = new StringBuilder();
             jsonBuilder.append("{");
-            jsonBuilder.append("\"username\":\"").append(usernameToSend).append("\"");
-            if (passwordToSend != null && !passwordToSend.isEmpty()) {
-                jsonBuilder.append(",\"password\":\"").append(passwordToSend).append("\"");
+            jsonBuilder.append("\"username\":\"").append(newUsername).append("\"");
+            if (newPassword != null && !newPassword.isEmpty()) {
+                jsonBuilder.append(",\"password\":\"").append(newPassword).append("\"");
             }
             if (imageToSend != null) {
                 jsonBuilder.append(",\"profileImageUrl\":\"").append(imageToSend).append("\"");
             }
             jsonBuilder.append("}");
             String jsonBody = jsonBuilder.toString();
-            HttpResponse<String> response = HttpManager.putWithToken(
-                    "http://localhost:8080/api/users/me",
-                    token,
-                    jsonBody
-            );
+            HttpResponse<String> response = HttpManager.putWithToken("http://localhost:8080/api/users/me", token, jsonBody);
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -219,6 +168,7 @@ public class ProfileController implements Initializable {
                             App.getUserProfile().setUsername(newUsername);
                         }
                         if (selectedImageName != null) {
+                            assert App.getUserProfile() != null;
                             App.getUserProfile().setProfileImageUrl(selectedImageName);
                         }
                         newPasswordField.clear();
