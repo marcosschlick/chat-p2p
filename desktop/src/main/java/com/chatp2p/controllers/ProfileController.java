@@ -1,8 +1,9 @@
 package com.chatp2p.controllers;
 
-import com.chatp2p.components.ImageSelectionDialog;
+import com.chatp2p.components.ImageSelector;
 import com.chatp2p.core.App;
 import com.chatp2p.managers.HttpManager;
+import com.chatp2p.models.ImageOption;
 import com.chatp2p.models.UserProfile;
 import com.chatp2p.exceptions.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,9 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.http.HttpResponse;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ProfileController implements Initializable {
 
@@ -72,19 +71,18 @@ public class ProfileController implements Initializable {
 
     @FXML
     private void handleChangePhoto() {
-        ImageSelectionDialog imageSelectionDialog = new ImageSelectionDialog(availableImages);
-        Optional<String> result = imageSelectionDialog.showAndWait();
-        result.ifPresent(imageName -> {
-            try {
-                selectedImageName = imageName;
-                Image newImage = new Image(Objects.requireNonNull(getClass().getResource("/com/chatp2p/images/" + imageName).toString()));
-                profileImageView.setImage(newImage);
-                showMessage("Foto selecionada com sucesso!", "success");
-            } catch (Exception e) {
-                showMessage("Erro ao carregar a imagem", "error");
-                throw new AppException("Failed to load selected image: " + imageName, e);
+        List<ImageOption> options = new ArrayList<>();
+        for (String imageName : availableImages) {
+            try (InputStream is = getClass().getResourceAsStream("/com/chatp2p/images/" + imageName)) {
+                if (is != null) {
+                    Image image = new Image(is);
+                    options.add(new ImageOption(imageName, image));
+                }
+            } catch (Exception ignored) {
             }
-        });
+        }
+        ImageSelector selector = new ImageSelector(options);
+        Optional<String> result = selector.showAndWait();
     }
 
     @NotNull
