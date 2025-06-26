@@ -16,7 +16,7 @@
                 <ImageView fx:id="userIconView"
                            fitWidth="240"
                            fitHeight="240"
-                           preserveRatio="true">
+                           preserveRatio="false">
                     <Image url="@../images/default_user.png"/>
                 </ImageView>
             </StackPane>

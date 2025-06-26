@@ -83,6 +83,10 @@ public class ProfileController implements Initializable {
         }
         ImageSelector selector = new ImageSelector(options);
         Optional<String> result = selector.showAndWait();
+        result.ifPresent(imageName -> {
+            selectedImageName = imageName;
+            setProfileImageView(imageName);
+        });
     }
 
     @NotNull

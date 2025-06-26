@@ -36,14 +36,19 @@ public class ImageSelector extends Dialog<String> {
 
         getDialogPane().setContent(grid);
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        setResultConverter(button -> null);
+        setResultConverter(button -> {
+            if (button == ButtonType.OK && getResult() != null) {
+                return getResult();
+            }
+            return null;
+        });
     }
 
     private VBox createImageContainer(ImageOption option) {
         ImageView imageView = new ImageView(option.getImage());
         imageView.setFitWidth(80);
         imageView.setFitHeight(80);
-        imageView.setPreserveRatio(true);
+        imageView.setPreserveRatio(false);
 
         VBox container = new VBox(imageView);
         container.setAlignment(javafx.geometry.Pos.CENTER);
@@ -53,7 +58,6 @@ public class ImageSelector extends Dialog<String> {
             setResult(option.getName());
             close();
         });
-
         return container;
     }
 

@@ -23,7 +23,8 @@ public class UserButton extends Button {
         ImageView userImage = new ImageView();
         userImage.setFitWidth(60);
         userImage.setFitHeight(60);
-        userImage.setPreserveRatio(true);
+        userImage.setPreserveRatio(false);
+        userImage.setStyle("-fx-background-radius: 10;");
 
         try {
             if (profileImageUrl != null) {

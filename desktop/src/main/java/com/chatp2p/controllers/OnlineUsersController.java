@@ -210,7 +210,10 @@ public class OnlineUsersController implements Initializable {
                 try {
                     Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(imageUrl)));
                     profileImageView.setImage(image);
-                } catch (Exception e) {
+                    profileImageView.setPreserveRatio(false);
+                    profileImageView.setFitWidth(56);
+                    profileImageView.setFitHeight(56);
+        }       catch (Exception e) {
                     profileImageView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/chatp2p/images/default_user.png"))));
                 }
             } else {

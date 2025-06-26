@@ -18,7 +18,7 @@
                 <ImageView fx:id="profileImageView"
                            fitWidth="160"
                            fitHeight="160"
-                           preserveRatio="true"/>
+                           preserveRatio="false"/>
                 <Button styleClass="secondary-button" text="TROCAR IMAGEM" onAction="#handleChangePhoto"/>
             </HBox>
 
