@@ -71,8 +71,6 @@ public class UserController {
         try {
             String token = authHeader.replace("Bearer ", "");
             Long userId = jwtUtil.getUserIdFromToken(token);
-            System.out.println(updateUserDTO.getUsername());
-            System.out.println(updateUserDTO.getProfileImageUrl());
             userService.updateUser(userId, updateUserDTO);
             return ResponseEntity.ok(Map.of("message", "User updated successfully"));
         } catch (AuthException e) {
