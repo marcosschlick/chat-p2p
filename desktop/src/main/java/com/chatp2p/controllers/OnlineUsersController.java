@@ -4,6 +4,7 @@ import com.chatp2p.components.UserButton;
 import com.chatp2p.core.App;
 import com.chatp2p.managers.HttpManager;
 import com.chatp2p.exceptions.*;
+import com.chatp2p.models.OnlineUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -106,11 +107,10 @@ public class OnlineUsersController implements Initializable {
     private void updateUserList(List<OnlineUser> users) {
         usersContainer.getChildren().clear();
         userIps.clear();
-        for (int i = 0; i < users.size(); i++) {
-            OnlineUser user = users.get(i);
-            String username = user.username;
-            String ip = user.ip;
-            String profileImageUrl = user.profileImageUrl;
+        for (OnlineUser user : users) {
+            String username = user.getUsername();
+            String ip = user.getIp();
+            String profileImageUrl = user.getProfileImageUrl();
             if (username == null) {
                 continue;
             }
@@ -208,26 +208,14 @@ public class OnlineUsersController implements Initializable {
                     imageUrl = "/com/chatp2p/images/" + imageUrl;
                 }
                 try {
-                    Image image = new Image(getClass().getResourceAsStream(imageUrl));
+                    Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(imageUrl)));
                     profileImageView.setImage(image);
                 } catch (Exception e) {
-                    profileImageView.setImage(new Image(getClass().getResourceAsStream("/com/chatp2p/images/default_user.png")));
+                    profileImageView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/chatp2p/images/default_user.png"))));
                 }
             } else {
-                profileImageView.setImage(new Image(getClass().getResourceAsStream("/com/chatp2p/images/default_user.png")));
+                profileImageView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/chatp2p/images/default_user.png"))));
             }
-        }
-    }
-
-    // Simple class to represent an online user
-    private static class OnlineUser {
-        String username;
-        String ip;
-        String profileImageUrl;
-        OnlineUser(String username, String ip, String profileImageUrl) {
-            this.username = username;
-            this.ip = ip;
-            this.profileImageUrl = profileImageUrl;
         }
     }
 }
