@@ -39,7 +39,6 @@ Após iniciar o servidor, você pode acessar a documentação interativa da API 
 
 - **Swagger UI**: `http://localhost:8080/swagger-ui/index.html`
 - **OpenAPI JSON**: `http://localhost:8080/v3/api-docs`
-- 
 
 ## Estrutura do Projeto
 ```
