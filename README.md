@@ -1,157 +1,84 @@
-# Chat P2P 
+# Chat P2P
 
-Este projeto inclui um servidor central para um sistema de chat P2P com banco de dados PostgreSQL (serviço Neon) e um cliente desktop usando JavaFX com banco de dados H2.
+## About
 
-## Pré-requisitos
-- Maven e JDK 21
+Chat P2P is a desktop peer-to-peer chat application built in Java.
 
-## Configuração Inicial
+The project uses a central Spring Boot server for user registration, authentication, profile management, and online user discovery. After users are authenticated, messages and files are exchanged directly between desktop clients through a P2P socket connection.
 
-Clone o repositório:
-```bash
-git clone git@github.com:marcosschlick/chat-p2p.git
-cd chat-p2p
+## Academic Context
+
+This project was developed for the Object-Oriented Programming course in the Technology in Systems Analysis and Development program at IFSul Santana do Livramento.
+
+## Features
+
+- User registration and login
+- JWT-based authentication
+- Online user list
+- Peer-to-peer text messaging
+- Peer-to-peer file sharing
+- Local chat history storage
+- User profile image selection
+- Swagger API documentation
+
+## Technologies
+
+- Java
+- JavaFX
+- Spring Boot
+- Spring Security
+- PostgreSQL
+- H2 Database
+- Maven
+- Swagger / OpenAPI
+
+## Project Structure
+
+```text
+.
+├── desktop/       # JavaFX desktop client
+├── server/        # Spring Boot central server
+├── .env.example   # Example environment variables
+└── README.md
 ```
 
-## Executando o Sistema
+## Prerequisites
 
-Para iniciar tanto o servidor quanto o cliente desktop, você precisará de dois terminais:
+- JDK 21
+- Maven
+- PostgreSQL database
 
-### Terminal 1 - Servidor Spring Boot:
+## Environment Variables
+
+The server requires environment variables for the PostgreSQL connection and JWT signing.
+
+Use `.env.example` as a reference:
+
 ```bash
-cd server 
+cp .env.example .env
+```
+
+Then fill `.env` with your own local or remote database values.
+
+## Running the Project
+
+Start the server first:
+
+```bash
+cd server
 mvn clean spring-boot:run
 ```
 
-### Terminal 2 - Cliente Desktop JavaFX:
+Then start the desktop client in another terminal:
+
 ```bash
 cd desktop
 mvn clean javafx:run
 ```
 
-Importante:
-1. Execute o servidor primeiro (Terminal 1)
-2. Só então execute o cliente desktop (Terminal 2)
+## API Documentation
 
-## Documentação da API (Swagger)
+After starting the server, the API documentation is available at:
 
-Após iniciar o servidor, você pode acessar a documentação interativa da API através dos seguintes endpoints:
-
-- **Swagger UI**: `http://localhost:8080/swagger-ui/index.html`
-- **OpenAPI JSON**: `http://localhost:8080/v3/api-docs`
-
-## Estrutura do Projeto
-```
-.
-├── desktop
-│   ├── database
-│   ├── pom.xml
-│   └── src
-│       └── main
-│           ├── java
-│           │   └── com
-│           │       └── chatp2p
-│           │           ├── components
-│           │           │   ├── FileMessageBubble.java
-│           │           │   ├── ImageSelector.java
-│           │           │   ├── MessageBubble.java
-│           │           │   ├── SystemMessage.java
-│           │           │   └── UserButton.java
-│           │           ├── controllers
-│           │           │   ├── ChatController.java
-│           │           │   ├── LoginController.java
-│           │           │   ├── OnlineUsersController.java
-│           │           │   └── ProfileController.java
-│           │           ├── core
-│           │           │   └── App.java
-│           │           ├── exceptions
-│           │           │   ├── AppException.java
-│           │           │   ├── ConnectionException.java
-│           │           │   ├── NetworkException.java
-│           │           │   └── UserNotFoundException.java
-│           │           ├── managers
-│           │           │   ├── AuthManager.java
-│           │           │   ├── ConnectionManager.java
-│           │           │   ├── DatabaseManager.java
-│           │           │   ├── HttpManager.java
-│           │           │   ├── PeerConnection.java
-│           │           │   └── ServerManager.java
-│           │           ├── models
-│           │           │   ├── ImageOption.java
-│           │           │   ├── Message.java
-│           │           │   ├── MessageType.java
-│           │           │   ├── OnlineUser.java
-│           │           │   └── UserProfile.java
-│           │           ├── repositories
-│           │           │   └── MessageRepository.java
-│           │           ├── services
-│           │           │   └── UserService.java
-│           │           └── utils
-│           │               └── NetworkUtils.java
-│           └── resources
-│               └── com
-│                   └── chatp2p
-│                       ├── icons
-│                       │   ├── chevron-left.png
-│                       │   ├── paperclip.png
-│                       │   ├── send.png
-│                       │   └── user.png
-│                       ├── images
-│                       │   ├── bob_esponja.jpg
-│                       │   ├── capitao_america.png
-│                       │   ├── chaves.png
-│                       │   ├── default_user.png
-│                       │   ├── groot.jpg
-│                       │   ├── sasuke.png
-│                       │   ├── squirtle.png
-│                       │   ├── suarez.png
-│                       │   └── vegeta.png
-│                       ├── styles.css
-│                       └── views
-│                           ├── ChatView.fxml
-│                           ├── LoginView.fxml
-│                           ├── OnlineUsers.fxml
-│                           └── ProfileView.fxml
-├── README.md
-└── server
-    ├── mvnw
-    ├── mvnw.cmd
-    ├── pom.xml
-    └── src
-        ├── main
-        │   ├── java
-        │   │   └── com
-        │   │       └── chatp2p
-        │   │           └── centralserver
-        │   │               ├── CentralServerApplication.java
-        │   │               ├── config
-        │   │               │   ├── JwtUtil.java
-        │   │               │   └── SecurityConfig.java
-        │   │               ├── controllers
-        │   │               │   ├── AuthController.java
-        │   │               │   └── UserController.java
-        │   │               ├── dtos
-        │   │               │   ├── CreateUserDTO.java
-        │   │               │   ├── LoginRequest.java
-        │   │               │   ├── LoginResponse.java
-        │   │               │   └── UpdateUserDTO.java
-        │   │               ├── entities
-        │   │               │   └── User.java
-        │   │               ├── exceptions
-        │   │               │   ├── AuthException.java
-        │   │               │   └── GlobalExceptionHandler.java
-        │   │               ├── repositories
-        │   │               │   └── UserRepository.java
-        │   │               └── services
-        │   │                   └── UserService.java
-        │   └── resources
-        │       └── application.properties
-        └── test
-            └── java
-                └── com
-                    └── chatp2p
-                        └── centralserver
-                            └── CentralServerApplicationTests.java
-
-43 directories, 68 files
-```
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
