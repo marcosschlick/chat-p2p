@@ -7,6 +7,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import com.chatp2p.exceptions.*;
+
 import java.net.URL;
 
 public class UserButton extends Button {
@@ -22,7 +23,8 @@ public class UserButton extends Button {
         ImageView userImage = new ImageView();
         userImage.setFitWidth(60);
         userImage.setFitHeight(60);
-        userImage.setPreserveRatio(true);
+        userImage.setPreserveRatio(false);
+        userImage.setStyle("-fx-background-radius: 10;");
 
         try {
             if (profileImageUrl != null) {

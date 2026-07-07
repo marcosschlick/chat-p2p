@@ -19,6 +19,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Objects;
 
 public class LoginController {
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -54,13 +55,7 @@ public class LoginController {
             @Override
             public void run() {
                 try {
-                    HttpResponse<String> response = HttpClient.newHttpClient().send(
-                            HttpRequest.newBuilder()
-                                    .uri(URI.create("http://localhost:8080/api/users/profile-image/" + username))
-                                    .GET()
-                                    .build(),
-                            HttpResponse.BodyHandlers.ofString()
-                    );
+                    HttpResponse<String> response = HttpClient.newHttpClient().send(HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/api/users/profile-image/" + username)).GET().build(), HttpResponse.BodyHandlers.ofString());
                     if (response.statusCode() == 200) {
                         JsonNode json = objectMapper.readTree(response.body());
                         String imageUrl = json.get("profileImageUrl").asText();
@@ -100,7 +95,7 @@ public class LoginController {
 
     private void loadDefaultUserIcon() {
         try {
-            Image defaultImage = new Image(getClass().getResourceAsStream("/com/chatp2p/images/default_user.png"));
+            Image defaultImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/chatp2p/images/default_user.png")));
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -124,18 +119,8 @@ public class LoginController {
         String ip = getLocalIP();
         new Thread(() -> {
             try {
-                String jsonBody = String.format(
-                        "{\"username\":\"%s\",\"password\":\"%s\",\"ip\":\"%s\"}",
-                        username, password, ip
-                );
-                HttpResponse<String> response = HttpClient.newHttpClient().send(
-                        HttpRequest.newBuilder()
-                                .uri(URI.create("http://localhost:8080/api/auth/login"))
-                                .header("Content-Type", "application/json")
-                                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                                .build(),
-                        HttpResponse.BodyHandlers.ofString()
-                );
+                String jsonBody = String.format("{\"username\":\"%s\",\"password\":\"%s\",\"ip\":\"%s\"}", username, password, ip);
+                HttpResponse<String> response = HttpClient.newHttpClient().send(HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/api/auth/login")).header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(jsonBody)).build(), HttpResponse.BodyHandlers.ofString());
                 if (response.statusCode() == 200) {
                     JsonNode json = objectMapper.readTree(response.body());
                     Long userId = json.get("id").asLong();
@@ -170,15 +155,7 @@ public class LoginController {
         }
         new Thread(() -> {
             try {
-                HttpResponse<String> response = HttpClient.newHttpClient().send(
-                        HttpRequest.newBuilder()
-                                .uri(URI.create("http://localhost:8080/api/auth/register"))
-                                .header("Content-Type", "application/json")
-                                .POST(HttpRequest.BodyPublishers.ofString(
-                                        "{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}"))
-                                .build(),
-                        HttpResponse.BodyHandlers.ofString()
-                );
+                HttpResponse<String> response = HttpClient.newHttpClient().send(HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/api/auth/register")).header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString("{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}")).build(), HttpResponse.BodyHandlers.ofString());
                 if (response.statusCode() == 200) {
                     showMessage("Conta criada com sucesso!", "success");
                 } else {

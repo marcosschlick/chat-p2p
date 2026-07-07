@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 public class App extends Application {
     private static Scene scene;
@@ -24,7 +25,7 @@ public class App extends Application {
     public void start(Stage stage) throws IOException {
         primaryStage = stage;
         scene = new Scene(loadFXML("LoginView"), 1200, 800);
-        scene.getStylesheets().add(getClass().getResource("/com/chatp2p/styles.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/chatp2p/styles.css")).toExternalForm());
         stage.setScene(scene);
         stage.setTitle("Chat P2P");
         stage.setMinWidth(800);
@@ -76,7 +77,7 @@ public class App extends Application {
     }
 
     private static Parent loadFXML(String fxml) throws IOException {
-        return FXMLLoader.load(App.class.getResource("/com/chatp2p/views/" + fxml + ".fxml"));
+        return FXMLLoader.load(Objects.requireNonNull(App.class.getResource("/com/chatp2p/views/" + fxml + ".fxml")));
     }
 
     public static void setUserProfile(Long id, String username, String profileImageUrl, String authToken) {

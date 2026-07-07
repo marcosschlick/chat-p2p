@@ -21,18 +21,11 @@ public class JwtUtil {
     }
 
     public String generateToken(Long userId) {
-        return Jwts.builder()
-                .subject(userId.toString())
-                .signWith(getSigningKey())
-                .compact();
+        return Jwts.builder().subject(userId.toString()).signWith(getSigningKey()).compact();
     }
 
     public Long getUserIdFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        Claims claims = Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token).getPayload();
 
         return Long.parseLong(claims.getSubject());
     }

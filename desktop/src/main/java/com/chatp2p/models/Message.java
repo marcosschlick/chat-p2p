@@ -3,10 +3,6 @@ package com.chatp2p.models;
 import java.io.Serializable;
 
 public class Message implements Serializable {
-    public enum MessageType {
-        TEXT, FILE, CONNECTION_REQUEST, SYSTEM
-    }
-
     private static final long serialVersionUID = 1L;
     private String sender;
     private String recipient;
@@ -16,7 +12,6 @@ public class Message implements Serializable {
     private byte[] fileData;
 
     public Message() {
-        // Construtor vazio para facilitar uso didático
     }
 
     public Message(String sender, String recipient, String content, MessageType type) {
